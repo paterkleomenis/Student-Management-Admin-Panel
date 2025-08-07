@@ -1,0 +1,98 @@
+# Environment files (all variations)
+.env*
+!.env.template
+!.env.example
+
+# Platform-specific local configurations
+android/local.properties
+ios/Flutter/flutter_export_environment.sh
+
+# Firebase/Google services (if you add them later)
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+lib/firebase_options.dart
+
+# Keystore files (Android signing)
+*.jks
+*.keystore
+*.p12
+*.key
+key.properties
+upload-keystore.jks
+
+# iOS signing and certificates
+ios/Runner.xcworkspace/xcshareddata/
+ios/Pods/
+ios/Runner.xcarchive
+*.mobileprovision
+*.p8
+
+# Coverage reports
+coverage/
+lcov.info
+.coverage
+
+# Test reports
+test_results/
+integration_test/coverage/
+
+# IDE specific files
+.vscode/launch.json
+.vscode/settings.json
+*.code-workspace
+
+# macOS Finder
+.DS_Store
+*/.DS_Store
+
+# Linux
+*~
+
+# Windows
+Thumbs.db
+*.tmp
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local development
+.local/
+.cache/
+
+# Flutter/Dart build outputs
+**/doc/api/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+
+# Web related
+lib/generated_plugin_registrant.dart
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio cache
+.idea/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
