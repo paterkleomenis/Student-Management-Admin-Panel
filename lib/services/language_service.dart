@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
+
 class LanguageService extends ChangeNotifier {
   static const String _languageKey = 'selected_language';
 
@@ -58,7 +60,7 @@ class LanguageService extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_languageKey, _currentLocale.languageCode);
     } catch (e) {
-      debugPrint('Error saving language preference: $e');
+      // Ignore save errors
     }
   }
 
@@ -70,9 +72,6 @@ class LanguageService extends ChangeNotifier {
       );
       _localizedStrings = json.decode(jsonString);
     } catch (e) {
-      debugPrint(
-        'Error loading translations for ${_currentLocale.languageCode}: $e',
-      );
       // Fallback to English if current language fails to load
       if (_currentLocale.languageCode != 'en') {
         try {
@@ -81,7 +80,6 @@ class LanguageService extends ChangeNotifier {
           );
           _localizedStrings = json.decode(fallbackJsonString);
         } catch (fallbackError) {
-          debugPrint('Error loading fallback translations: $fallbackError');
           _localizedStrings = {};
         }
       }
@@ -108,7 +106,6 @@ class LanguageService extends ChangeNotifier {
         value = value[k];
       } else {
         // Return the key if translation is not found
-        debugPrint('Translation not found for key: $key');
         return key;
       }
     }

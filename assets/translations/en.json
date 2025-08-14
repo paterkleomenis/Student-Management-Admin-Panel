@@ -210,8 +210,7 @@
     "dark": "Dark",
     "app_info": "App Information",
     "version": "Version",
-    "developer_mode": "Developer Mode",
-    "enabled": "Enabled",
+
     "disabled": "Disabled",
     "language_changed": "Language changed to {language}",
     "choose_language": "Choose your preferred language for the application"
@@ -343,6 +342,48 @@
     "created_at": "Created At"
   },
   "student_form": {
+    "sections": {
+      "personal_information": "Personal Information",
+      "education_information": "Education Information",
+      "contact_information": "Contact Information",
+      "parent_information": "Parent Information"
+    },
+    "fields": {
+      "first_name": "First Name *",
+      "last_name": "Last Name *",
+      "father_name": "Father Name *",
+      "mother_name": "Mother Name *",
+      "birth_date": "Birth Date *",
+      "birth_place": "Birth Place *",
+      "id_card_number": "ID Card Number *",
+      "issuing_authority": "Issuing Authority *",
+      "university": "University *",
+      "university_hint": "Enter university name",
+      "department": "Department *",
+      "year_of_study": "Year of Study *",
+      "has_other_degree": "Has Other Degree",
+      "email": "Email *",
+      "phone": "Phone *",
+      "tax_number": "Tax Number",
+      "father_job": "Father Job",
+      "mother_job": "Mother Job",
+      "address": "Address",
+      "city": "City",
+      "region": "Region",
+      "postal_code": "Postal Code",
+      "country": "Country",
+      "parent_phone": "Parent Phone",
+      "select_date": "Select date"
+    },
+    "validators": {
+      "first_name": "First name",
+      "last_name": "Last name",
+      "father_name": "Father name",
+      "mother_name": "Mother name",
+      "university": "University",
+      "department": "Please select a department",
+      "year_of_study": "Please select year of study"
+    },
     "departments": {
       "computer_science": "Computer Science",
       "electrical_engineering": "Electrical Engineering",
@@ -366,7 +407,50 @@
     "error_loading": "Error loading student: {error}",
     "error_saving": "Error saving student: {error}",
     "student_saved": "Student saved successfully!",
-    "student_updated": "Student updated successfully!"
+    "student_updated": "Student updated successfully!",
+    "export_headers": {
+      "id": "ID",
+      "name": "Name",
+      "family_name": "Family Name",
+      "father_name": "Father Name",
+      "mother_name": "Mother Name",
+      "birth_date": "Birth Date",
+      "birth_place": "Birth Place",
+      "id_card_number": "ID Card Number",
+      "issuing_authority": "Issuing Authority",
+      "university": "University",
+      "department": "Department",
+      "year_of_study": "Year of Study",
+      "has_other_degree": "Has Other Degree",
+      "email": "Email",
+      "phone": "Phone",
+      "tax_number": "Tax Number",
+      "father_job": "Father Job",
+      "mother_job": "Mother Job",
+      "parent_address": "Parent Address",
+      "parent_city": "Parent City",
+      "parent_region": "Parent Region",
+      "parent_postal": "Parent Postal",
+      "parent_country": "Parent Country",
+      "parent_number": "Parent Number",
+      "created_at": "Created At",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "export_titles": {
+      "students_data": "Students Data",
+      "filtered_students_data": "Filtered Students Data",
+      "summary": "Students Database Summary",
+      "total_students": "Total Students",
+      "universities": "Universities",
+      "departments": "Departments",
+      "years_of_study": "Years of Study"
+    },
+    "export_files": {
+      "students_export": "students_export.xlsx",
+      "students_summary": "students_summary.xlsx",
+      "save_excel_title": "Save Excel File"
+    }
   },
   "language_toggle": {
     "changed_to_english": "Language changed to English",

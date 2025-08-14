@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config/app_config.dart';
@@ -16,13 +15,7 @@ class DatabaseClient {
       AppConfig.validate();
 
       await Supabase.initialize(url: _url, anonKey: _anonKey);
-
-      if (AppConfig.enableLogging) {
-        debugPrint('Supabase initialized successfully');
-        debugPrint('Environment: ${AppConfig.appEnv}');
-      }
     } catch (e) {
-      debugPrint('Failed to initialize Supabase: $e');
       throw Exception(
         'Database initialization failed. Please check your environment configuration.',
       );

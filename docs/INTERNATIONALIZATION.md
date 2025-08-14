@@ -9,8 +9,7 @@ The application uses a comprehensive internationalization system that:
 - ✅ Supports multiple languages (currently English and Greek)
 - ✅ Provides easy language switching
 - ✅ Includes parameter substitution for dynamic content
-- ✅ Has validation tools for translation completeness
-- ✅ Offers development utilities for managing translations
+- ✅ Handles language persistence
 
 ## Architecture
 
@@ -26,11 +25,6 @@ The application uses a comprehensive internationalization system that:
    - JSON files for each supported language
    - Structured with nested objects for organization
    - Parameter placeholders for dynamic content
-
-3. **Validation Tools** (`lib/utils/`)
-   - Translation completeness validation
-   - Parameter consistency checking
-   - Development utilities
 
 ## Current Languages
 
@@ -181,42 +175,6 @@ Update translation files to include the new language name:
 }
 ```
 
-## Development Tools
-
-### Translation Validation
-
-Run the validation script to check translation completeness:
-
-```bash
-dart run scripts/validate_translations.dart
-```
-
-This checks for:
-- Missing translation keys
-- Extra keys not in reference language
-- Empty translation values
-- Parameter consistency across languages
-
-### Development Screen
-
-In debug mode, access the translation development tools:
-
-```dart
-// Add to your route configuration (debug only)
-if (kDebugMode) {
-  GoRoute(
-    path: '/dev/translations',
-    builder: (context, state) => const DevTranslationScreen(),
-  ),
-}
-```
-
-Features:
-- Translation validation
-- Progress tracking
-- Template generation for new languages
-- Export/import utilities
-
 ## Best Practices
 
 ### For Developers
@@ -226,7 +184,6 @@ Features:
 3. **Test with different languages** to ensure UI layout works
 4. **Use meaningful key names** that describe the context
 5. **Group related translations** under common prefixes
-6. **Validate translations** before committing code
 
 ### For Translators
 
@@ -294,17 +251,10 @@ The system gracefully handles missing translations:
 assets/translations/
 ├── en.json          # English (reference)
 ├── el.json          # Greek
-└── [code].json      # Additional languages
+└── [language_code].json  # Additional languages
 
 lib/services/
 └── language_service.dart    # Main service
-
-lib/utils/
-├── translation_validator.dart   # Validation utilities
-└── language_helper.dart        # Development helpers
-
-scripts/
-└── validate_translations.dart  # CLI validation tool
 ```
 
 ## Testing
@@ -315,19 +265,6 @@ scripts/
 2. Navigate through all screens
 3. Test forms and error messages
 4. Verify dynamic content with parameters
-
-### Automated Validation
-
-```bash
-# Run translation validation
-dart run scripts/validate_translations.dart
-
-# This will check:
-# - All languages have the same keys
-# - No empty translations
-# - Parameter consistency
-# - JSON syntax validity
-```
 
 ## Troubleshooting
 
@@ -352,19 +289,6 @@ dart run scripts/validate_translations.dart
 3. Consider text direction for RTL languages
 4. Test on different screen sizes
 
-## Future Enhancements
-
-Planned improvements:
-
-- [ ] Pluralization support
-- [ ] Context-aware translations
-- [ ] Translation memory integration
-- [ ] Automated translation validation in CI/CD
-- [ ] Export to translation service formats
-- [ ] Import from external translation tools
-- [ ] Real-time translation updates
-- [ ] A/B testing for different translations
-
 ## Contributing
 
 When adding new features:
@@ -372,12 +296,11 @@ When adding new features:
 1. Add all text to translation files first
 2. Use LanguageService for all text display
 3. Test with multiple languages
-4. Run validation script
-5. Update this documentation if needed
+4. Update this documentation if needed
 
 For translation contributions:
 
-1. Use the template generation tool
+1. Create translation files following the existing structure
 2. Follow the style guide for your language
 3. Test your translations in the app
-4. Submit with validation report
+4. Ensure all parameter placeholders are preserved

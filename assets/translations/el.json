@@ -210,8 +210,7 @@
     "dark": "Σκοτεινό",
     "app_info": "Πληροφορίες Εφαρμογής",
     "version": "Έκδοση",
-    "developer_mode": "Λειτουργία Προγραμματιστή",
-    "enabled": "Ενεργοποιημένη",
+
     "disabled": "Απενεργοποιημένη",
     "language_changed": "Η γλώσσα άλλαξε σε {language}",
     "choose_language": "Επιλέξτε την προτιμώμενη γλώσσα για την εφαρμογή"
@@ -343,6 +342,48 @@
     "created_at": "Ημερομηνία Δημιουργίας"
   },
   "student_form": {
+    "sections": {
+      "personal_information": "Προσωπικές Πληροφορίες",
+      "education_information": "Εκπαιδευτικές Πληροφορίες",
+      "contact_information": "Στοιχεία Επικοινωνίας",
+      "parent_information": "Στοιχεία Γονέων"
+    },
+    "fields": {
+      "first_name": "Όνομα *",
+      "last_name": "Επώνυμο *",
+      "father_name": "Πατρώνυμο *",
+      "mother_name": "Μητρώνυμο *",
+      "birth_date": "Ημερομηνία Γέννησης *",
+      "birth_place": "Τόπος Γέννησης *",
+      "id_card_number": "Αριθμός Ταυτότητας *",
+      "issuing_authority": "Αρχή Έκδοσης *",
+      "university": "Πανεπιστήμιο *",
+      "university_hint": "Εισάγετε το όνομα του πανεπιστημίου",
+      "department": "Τμήμα *",
+      "year_of_study": "Έτος Σπουδών *",
+      "has_other_degree": "Έχει Άλλο Πτυχίο",
+      "email": "Ηλεκτρονικό Ταχυδρομείο *",
+      "phone": "Τηλέφωνο *",
+      "tax_number": "Αριθμός Φορολογικού Μητρώου",
+      "father_job": "Επάγγελμα Πατέρα",
+      "mother_job": "Επάγγελμα Μητέρας",
+      "address": "Διεύθυνση",
+      "city": "Πόλη",
+      "region": "Περιφέρεια",
+      "postal_code": "Ταχυδρομικός Κώδικας",
+      "country": "Χώρα",
+      "parent_phone": "Τηλέφωνο Γονέων",
+      "select_date": "Επιλογή ημερομηνίας"
+    },
+    "validators": {
+      "first_name": "Όνομα",
+      "last_name": "Επώνυμο",
+      "father_name": "Πατρώνυμο",
+      "mother_name": "Μητρώνυμο",
+      "university": "Πανεπιστήμιο",
+      "department": "Παρακαλώ επιλέξτε τμήμα",
+      "year_of_study": "Παρακαλώ επιλέξτε έτος σπουδών"
+    },
     "departments": {
       "computer_science": "Επιστήμη Υπολογιστών",
       "electrical_engineering": "Ηλεκτρολόγων Μηχανικών",
@@ -366,7 +407,50 @@
     "error_loading": "Σφάλμα φόρτωσης φοιτητή: {error}",
     "error_saving": "Σφάλμα αποθήκευσης φοιτητή: {error}",
     "student_saved": "Ο φοιτητής αποθηκεύτηκε επιτυχώς!",
-    "student_updated": "Ο φοιτητής ενημερώθηκε επιτυχώς!"
+    "student_updated": "Ο φοιτητής ενημερώθηκε επιτυχώς!",
+    "export_headers": {
+      "id": "Κωδικός",
+      "name": "Όνομα",
+      "family_name": "Επώνυμο",
+      "father_name": "Πατρώνυμο",
+      "mother_name": "Μητρώνυμο",
+      "birth_date": "Ημερομηνία Γέννησης",
+      "birth_place": "Τόπος Γέννησης",
+      "id_card_number": "Αριθμός Ταυτότητας",
+      "issuing_authority": "Αρχή Έκδοσης",
+      "university": "Πανεπιστήμιο",
+      "department": "Τμήμα",
+      "year_of_study": "Έτος Σπουδών",
+      "has_other_degree": "Έχει Άλλο Πτυχίο",
+      "email": "Ηλεκτρονικό Ταχυδρομείο",
+      "phone": "Τηλέφωνο",
+      "tax_number": "Αριθμός Φορολογικού Μητρώου",
+      "father_job": "Επάγγελμα Πατέρα",
+      "mother_job": "Επάγγελμα Μητέρας",
+      "parent_address": "Διεύθυνση Γονέων",
+      "parent_city": "Πόλη Γονέων",
+      "parent_region": "Περιφέρεια Γονέων",
+      "parent_postal": "Ταχυδρομικός Κώδικας Γονέων",
+      "parent_country": "Χώρα Γονέων",
+      "parent_number": "Τηλέφωνο Γονέων",
+      "created_at": "Ημερομηνία Δημιουργίας",
+      "yes": "Ναι",
+      "no": "Όχι"
+    },
+    "export_titles": {
+      "students_data": "Δεδομένα Φοιτητών",
+      "filtered_students_data": "Φιλτραρισμένα Δεδομένα Φοιτητών",
+      "summary": "Σύνοψη Βάσης Δεδομένων Φοιτητών",
+      "total_students": "Σύνολο Φοιτητών",
+      "universities": "Πανεπιστήμια",
+      "departments": "Τμήματα",
+      "years_of_study": "Έτη Σπουδών"
+    },
+    "export_files": {
+      "students_export": "εξαγωγη_φοιτητων.xlsx",
+      "students_summary": "συνοψη_φοιτητων.xlsx",
+      "save_excel_title": "Αποθήκευση Αρχείου Excel"
+    }
   },
   "language_toggle": {
     "changed_to_english": "Language changed to English",

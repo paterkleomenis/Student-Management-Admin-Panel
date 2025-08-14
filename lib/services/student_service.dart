@@ -14,9 +14,10 @@ class StudentService {
     String? university,
     String? department,
     String? yearOfStudy,
+    String? applicationStatus,
   }) async {
     try {
-      var query = _client.from('students').select();
+      var query = _client.from('dormitory_students').select();
 
       // Apply server-side filtering
       if (searchQuery != null && searchQuery.isNotEmpty) {
@@ -24,7 +25,8 @@ class StudentService {
           'name.ilike.%$searchQuery%,'
           'family_name.ilike.%$searchQuery%,'
           'email.ilike.%$searchQuery%,'
-          'phone.ilike.%$searchQuery%',
+          'phone.ilike.%$searchQuery%,'
+          'id_card_number.ilike.%$searchQuery%',
         );
       }
 
@@ -38,6 +40,10 @@ class StudentService {
 
       if (yearOfStudy != null && yearOfStudy.isNotEmpty) {
         query = query.eq('year_of_study', yearOfStudy);
+      }
+
+      if (applicationStatus != null && applicationStatus.isNotEmpty) {
+        query = query.eq('application_status', applicationStatus);
       }
 
       final response = await query
@@ -54,7 +60,7 @@ class StudentService {
   Future<List<Student>> getAllStudentsForExport() async {
     try {
       final response = await _client
-          .from('students')
+          .from('dormitory_students')
           .select()
           .order('created_at', ascending: false);
 
@@ -67,10 +73,49 @@ class StudentService {
   // Get student by ID
   Future<Student?> getStudentById(String id) async {
     try {
-      final response =
-          await _client.from('students').select().eq('id', id).single();
+      final response = await _client
+          .from('dormitory_students')
+          .select()
+          .eq('id', id)
+          .single();
 
       return Student.fromJson(response);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Get student with documents
+  Future<Map<String, dynamic>?> getStudentWithDocuments(String id) async {
+    try {
+      // Get student data
+      final studentResponse = await _client
+          .from('dormitory_students')
+          .select()
+          .eq('id', id)
+          .single();
+
+      final student = Student.fromJson(studentResponse);
+
+      // Get student documents
+      final documentsResponse =
+          await _client.from('student_documents').select('''
+            *,
+            category:document_categories(*)
+          ''').eq('student_id', id).order('uploaded_at', ascending: false);
+
+      // Get document submissions
+      final submissionsResponse = await _client
+          .from('document_submissions')
+          .select()
+          .eq('student_id', id)
+          .order('submission_date', ascending: false);
+
+      return {
+        'student': student,
+        'documents': documentsResponse,
+        'submissions': submissionsResponse,
+      };
     } catch (e) {
       return null;
     }
@@ -80,7 +125,7 @@ class StudentService {
   Future<Student> createStudent(Student student) async {
     try {
       final response = await _client
-          .from('students')
+          .from('dormitory_students')
           .insert(student.toJson())
           .select()
           .single();
@@ -93,10 +138,13 @@ class StudentService {
 
   // Create new student from data (without ID, let database generate it)
   Future<Student> createStudentFromData(
-      Map<String, dynamic> studentData,) async {
+      Map<String, dynamic> studentData) async {
     try {
-      final response =
-          await _client.from('students').insert(studentData).select().single();
+      final response = await _client
+          .from('dormitory_students')
+          .insert(studentData)
+          .select()
+          .single();
 
       return Student.fromJson(response);
     } catch (e) {
@@ -108,9 +156,9 @@ class StudentService {
   Future<Student> updateStudent(Student student) async {
     try {
       final response = await _client
-          .from('students')
+          .from('dormitory_students')
           .update(student.toJson())
-          .eq('id', student.id)
+          .eq('id', student.id ?? "")
           .select()
           .single();
 
@@ -120,10 +168,12 @@ class StudentService {
     }
   }
 
+  // Update student application status
+
   // Delete student
   Future<void> deleteStudent(String id) async {
     try {
-      await _client.from('students').delete().eq('id', id);
+      await _client.from('dormitory_students').delete().eq('id', id);
     } catch (e) {
       throw Exception('Failed to delete student: $e');
     }
@@ -135,9 +185,10 @@ class StudentService {
     String? university,
     String? department,
     String? yearOfStudy,
+    String? applicationStatus,
   }) async {
     try {
-      var query = _client.from('students').select('id');
+      var query = _client.from('dormitory_students').select('id');
 
       // Apply same filters as getStudents
       if (searchQuery != null && searchQuery.isNotEmpty) {
@@ -145,7 +196,8 @@ class StudentService {
           'name.ilike.%$searchQuery%,'
           'family_name.ilike.%$searchQuery%,'
           'email.ilike.%$searchQuery%,'
-          'phone.ilike.%$searchQuery%',
+          'phone.ilike.%$searchQuery%,'
+          'id_card_number.ilike.%$searchQuery%',
         );
       }
 
@@ -161,6 +213,10 @@ class StudentService {
         query = query.eq('year_of_study', yearOfStudy);
       }
 
+      if (applicationStatus != null && applicationStatus.isNotEmpty) {
+        query = query.eq('application_status', applicationStatus);
+      }
+
       final response = await query;
       return (response as List).length;
     } catch (e) {
@@ -172,13 +228,14 @@ class StudentService {
   Future<List<String>> getUniversities() async {
     try {
       final response = await _client
-          .from('students')
+          .from('dormitory_students')
           .select('university')
           .order('university');
 
       final universities = (response as List)
-          .map((row) => row['university'] as String)
-          .where((university) => university.isNotEmpty)
+          .map((row) => row['university'] as String?)
+          .where((university) => university != null && university.isNotEmpty)
+          .cast<String>()
           .toSet()
           .toList();
 
@@ -192,13 +249,14 @@ class StudentService {
   Future<List<String>> getDepartments() async {
     try {
       final response = await _client
-          .from('students')
+          .from('dormitory_students')
           .select('department')
           .order('department');
 
       final departments = (response as List)
-          .map((row) => row['department'] as String)
-          .where((department) => department.isNotEmpty)
+          .map((row) => row['department'] as String?)
+          .where((department) => department != null && department.isNotEmpty)
+          .cast<String>()
           .toSet()
           .toList();
 
@@ -212,13 +270,14 @@ class StudentService {
   Future<List<String>> getYearsOfStudy() async {
     try {
       final response = await _client
-          .from('students')
+          .from('dormitory_students')
           .select('year_of_study')
           .order('year_of_study');
 
       final years = (response as List)
-          .map((row) => row['year_of_study'] as String)
-          .where((year) => year.isNotEmpty)
+          .map((row) => row['year_of_study']?.toString())
+          .where((year) => year != null && year.isNotEmpty)
+          .cast<String>()
           .toSet()
           .toList();
 
@@ -233,8 +292,8 @@ class StudentService {
     try {
       // Get all data in one efficient query
       final response = await _client
-          .from('students')
-          .select('university, department, year_of_study');
+          .from('dormitory_students')
+          .select('university, department, year_of_study, created_at');
 
       final data = response as List;
       final totalCount = data.length;
@@ -243,7 +302,7 @@ class StudentService {
       final universityCounts = <String, int>{};
       for (final row in data) {
         final university = row['university'] as String? ?? 'Unknown';
-        if (university.isNotEmpty) {
+        if (university.isNotEmpty && university != 'Unknown') {
           universityCounts[university] =
               (universityCounts[university] ?? 0) + 1;
         }
@@ -253,7 +312,7 @@ class StudentService {
       final departmentCounts = <String, int>{};
       for (final row in data) {
         final department = row['department'] as String? ?? 'Unknown';
-        if (department.isNotEmpty) {
+        if (department.isNotEmpty && department != 'Unknown') {
           departmentCounts[department] =
               (departmentCounts[department] ?? 0) + 1;
         }
@@ -262,9 +321,29 @@ class StudentService {
       // Count by year of study
       final yearCounts = <String, int>{};
       for (final row in data) {
-        final year = row['year_of_study'] as String? ?? 'Unknown';
-        if (year.isNotEmpty) {
+        final year = row['year_of_study']?.toString() ?? 'Unknown';
+        if (year.isNotEmpty && year != 'Unknown') {
           yearCounts[year] = (yearCounts[year] ?? 0) + 1;
+        }
+      }
+
+      // Applications by month (last 12 months)
+      final now = DateTime.now();
+      final monthlyApplications = <String, int>{};
+      for (int i = 11; i >= 0; i--) {
+        final month = DateTime(now.year, now.month - i, 1);
+        final monthKey =
+            '${month.year}-${month.month.toString().padLeft(2, '0')}';
+        monthlyApplications[monthKey] = 0;
+      }
+
+      for (final row in data) {
+        final createdAt = DateTime.parse(row['created_at'] as String);
+        final monthKey =
+            '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}';
+        if (monthlyApplications.containsKey(monthKey)) {
+          monthlyApplications[monthKey] =
+              (monthlyApplications[monthKey] ?? 0) + 1;
         }
       }
 
@@ -273,6 +352,7 @@ class StudentService {
         'universityCounts': universityCounts,
         'departmentCounts': departmentCounts,
         'yearCounts': yearCounts,
+        'monthlyApplications': monthlyApplications,
       };
     } catch (e) {
       return {
@@ -280,7 +360,68 @@ class StudentService {
         'universityCounts': <String, int>{},
         'departmentCounts': <String, int>{},
         'yearCounts': <String, int>{},
+        'monthlyApplications': <String, int>{},
       };
+    }
+  }
+
+  // Get students with incomplete required documents
+  Future<List<Map<String, dynamic>>> getIncompleteApplications() async {
+    try {
+      // Get required categories
+      final requiredCategoriesResponse = await _client
+          .from('document_categories')
+          .select('id, category_key, name_en')
+          .eq('is_required', true);
+
+      final requiredCategories = requiredCategoriesResponse as List;
+      final requiredCategoryIds =
+          requiredCategories.map((cat) => cat['id'] as int).toList();
+
+      // Get all students with submitted status
+      final studentsResponse = await _client
+          .from('dormitory_students')
+          .select('id, name, family_name, email, application_status')
+          .eq('application_status', 'submitted');
+
+      final students = studentsResponse as List;
+      final incompleteStudents = <Map<String, dynamic>>[];
+
+      for (final student in students) {
+        final studentId = student['id'] as String;
+
+        // Get student's uploaded documents
+        final documentsResponse = await _client
+            .from('student_documents')
+            .select('category_id')
+            .eq('student_id', studentId);
+
+        final uploadedCategoryIds = (documentsResponse as List)
+            .map((doc) => doc['category_id'] as int)
+            .toSet();
+
+        // Check for missing required documents
+        final missingCategories = requiredCategoryIds
+            .where((catId) => !uploadedCategoryIds.contains(catId))
+            .toList();
+
+        if (missingCategories.isNotEmpty) {
+          final missingCategoryNames = requiredCategories
+              .where((cat) => missingCategories.contains(cat['id']))
+              .map((cat) => cat['name_en'] as String)
+              .toList();
+
+          incompleteStudents.add({
+            ...student,
+            'missingDocuments': missingCategoryNames,
+            'missingCount': missingCategories.length,
+          });
+        }
+      }
+
+      return incompleteStudents;
+    } catch (e) {
+      return [];
     }
   }
 }

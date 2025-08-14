@@ -1,8 +1,8 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
 import '../models/student.dart';
@@ -10,7 +10,11 @@ import '../models/student.dart';
 class ExcelService {
   static const String _fileName = 'students_export';
 
-  static Future<void> exportStudentsToExcel(List<Student> students) async {
+  static Future<void> exportStudentsToExcel(
+    List<Student> students, {
+    Map<String, String>? localizedHeaders,
+    Map<String, String>? localizedTitles,
+  }) async {
     if (students.isEmpty) {
       throw Exception('No students to export');
     }
@@ -20,7 +24,8 @@ class ExcelService {
       final excel = Excel.createExcel();
 
       // Create new sheet first, then remove default
-      final sheetObject = excel['Students Data'];
+      final sheetObject =
+          excel[localizedTitles?['students_data'] ?? 'Students Data'];
 
       // Delete the default Sheet1 after creating our sheet
       try {
@@ -31,31 +36,31 @@ class ExcelService {
 
       // Define headers
       final headers = [
-        'ID',
-        'Name',
-        'Family Name',
-        'Father Name',
-        'Mother Name',
-        'Birth Date',
-        'Birth Place',
-        'ID Card Number',
-        'Issuing Authority',
-        'University',
-        'Department',
-        'Year of Study',
-        'Has Other Degree',
-        'Email',
-        'Phone',
-        'Tax Number',
-        'Father Job',
-        'Mother Job',
-        'Parent Address',
-        'Parent City',
-        'Parent Region',
-        'Parent Postal',
-        'Parent Country',
-        'Parent Number',
-        'Created At',
+        localizedHeaders?['id'] ?? 'ID',
+        localizedHeaders?['name'] ?? 'Name',
+        localizedHeaders?['family_name'] ?? 'Family Name',
+        localizedHeaders?['father_name'] ?? 'Father Name',
+        localizedHeaders?['mother_name'] ?? 'Mother Name',
+        localizedHeaders?['birth_date'] ?? 'Birth Date',
+        localizedHeaders?['birth_place'] ?? 'Birth Place',
+        localizedHeaders?['id_card_number'] ?? 'ID Card Number',
+        localizedHeaders?['issuing_authority'] ?? 'Issuing Authority',
+        localizedHeaders?['university'] ?? 'University',
+        localizedHeaders?['department'] ?? 'Department',
+        localizedHeaders?['year_of_study'] ?? 'Year of Study',
+        localizedHeaders?['has_other_degree'] ?? 'Has Other Degree',
+        localizedHeaders?['email'] ?? 'Email',
+        localizedHeaders?['phone'] ?? 'Phone',
+        localizedHeaders?['tax_number'] ?? 'Tax Number',
+        localizedHeaders?['father_job'] ?? 'Father Job',
+        localizedHeaders?['mother_job'] ?? 'Mother Job',
+        localizedHeaders?['parent_address'] ?? 'Parent Address',
+        localizedHeaders?['parent_city'] ?? 'Parent City',
+        localizedHeaders?['parent_region'] ?? 'Parent Region',
+        localizedHeaders?['parent_postal'] ?? 'Parent Postal',
+        localizedHeaders?['parent_country'] ?? 'Parent Country',
+        localizedHeaders?['parent_number'] ?? 'Parent Number',
+        localizedHeaders?['created_at'] ?? 'Created At',
       ];
 
       // Add headers to the first row
@@ -72,7 +77,10 @@ class ExcelService {
       // Add student data
       for (var rowIndex = 0; rowIndex < students.length; rowIndex++) {
         final student = students[rowIndex];
-        final studentData = student.toExcelMap();
+        final studentData = student.toExcelMap(
+          yesText: localizedHeaders?['yes'],
+          noText: localizedHeaders?['no'],
+        );
 
         var columnIndex = 0;
         for (final header in headers) {
@@ -83,19 +91,108 @@ class ExcelService {
             ),
           );
 
-          final value = studentData[header];
+          // Map localized header back to English key for data lookup
+          String englishKey = header;
+          if (localizedHeaders != null) {
+            // Find the English key that corresponds to this localized header
+            for (final entry in localizedHeaders.entries) {
+              if (entry.value == header) {
+                // Convert the key to the format used in toExcelMap()
+                switch (entry.key) {
+                  case 'id':
+                    englishKey = 'ID';
+                    break;
+                  case 'name':
+                    englishKey = 'Name';
+                    break;
+                  case 'family_name':
+                    englishKey = 'Family Name';
+                    break;
+                  case 'father_name':
+                    englishKey = 'Father Name';
+                    break;
+                  case 'mother_name':
+                    englishKey = 'Mother Name';
+                    break;
+                  case 'birth_date':
+                    englishKey = 'Birth Date';
+                    break;
+                  case 'birth_place':
+                    englishKey = 'Birth Place';
+                    break;
+                  case 'id_card_number':
+                    englishKey = 'ID Card Number';
+                    break;
+                  case 'issuing_authority':
+                    englishKey = 'Issuing Authority';
+                    break;
+                  case 'university':
+                    englishKey = 'University';
+                    break;
+                  case 'department':
+                    englishKey = 'Department';
+                    break;
+                  case 'year_of_study':
+                    englishKey = 'Year of Study';
+                    break;
+                  case 'has_other_degree':
+                    englishKey = 'Has Other Degree';
+                    break;
+                  case 'email':
+                    englishKey = 'Email';
+                    break;
+                  case 'phone':
+                    englishKey = 'Phone';
+                    break;
+                  case 'tax_number':
+                    englishKey = 'Tax Number';
+                    break;
+                  case 'father_job':
+                    englishKey = 'Father Job';
+                    break;
+                  case 'mother_job':
+                    englishKey = 'Mother Job';
+                    break;
+                  case 'parent_address':
+                    englishKey = 'Parent Address';
+                    break;
+                  case 'parent_city':
+                    englishKey = 'Parent City';
+                    break;
+                  case 'parent_region':
+                    englishKey = 'Parent Region';
+                    break;
+                  case 'parent_postal':
+                    englishKey = 'Parent Postal';
+                    break;
+                  case 'parent_country':
+                    englishKey = 'Parent Country';
+                    break;
+                  case 'parent_number':
+                    englishKey = 'Parent Phone';
+                    break;
+                  case 'created_at':
+                    englishKey = 'Created At';
+                    break;
+                }
+                break;
+              }
+            }
+          }
+
+          final value = studentData[englishKey];
           if (value != null && value.toString().isNotEmpty) {
             var cellValue = value.toString();
 
             // Format dates properly as text
-            if (header == 'Birth Date') {
+            if (englishKey == 'Birth Date') {
               try {
                 final dateTime = DateTime.parse(cellValue);
                 cellValue = DateFormat('dd/MM/yyyy').format(dateTime);
               } catch (e) {
                 // Keep original value if parsing fails
               }
-            } else if (header == 'Created At') {
+            } else if (englishKey == 'Created At') {
               try {
                 final dateTime = DateTime.parse(cellValue);
                 cellValue = DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
@@ -127,8 +224,8 @@ class ExcelService {
           excelBytes != null ? Uint8List.fromList(excelBytes) : null;
 
       final outputFile = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save Excel File',
-        fileName: 'students_export.xlsx',
+        dialogTitle: localizedTitles?['save_excel_title'] ?? 'Save Excel File',
+        fileName: localizedTitles?['students_export'] ?? 'students_export.xlsx',
         bytes: excelUint8List,
       );
 
@@ -147,6 +244,8 @@ class ExcelService {
     String? university,
     String? department,
     String? yearOfStudy,
+    Map<String, String>? localizedHeaders,
+    Map<String, String>? localizedTitles,
   }) async {
     if (students.isEmpty) {
       throw Exception('No students to export');
@@ -178,7 +277,8 @@ class ExcelService {
       final excel = Excel.createExcel();
 
       // Create new sheet first, then remove default
-      final sheetObject = excel['Filtered Students Data'];
+      final sheetObject = excel[localizedTitles?['filtered_students_data'] ??
+          'Filtered Students Data'];
 
       // Delete the default Sheet1 after creating our sheet
       try {
@@ -231,31 +331,31 @@ class ExcelService {
 
       // Define headers
       final headers = [
-        'ID',
-        'Name',
-        'Family Name',
-        'Father Name',
-        'Mother Name',
-        'Birth Date',
-        'Birth Place',
-        'ID Card Number',
-        'Issuing Authority',
-        'University',
-        'Department',
-        'Year of Study',
-        'Has Other Degree',
-        'Email',
-        'Phone',
-        'Tax Number',
-        'Father Job',
-        'Mother Job',
-        'Parent Address',
-        'Parent City',
-        'Parent Region',
-        'Parent Postal',
-        'Parent Country',
-        'Parent Number',
-        'Created At',
+        localizedHeaders?['id'] ?? 'ID',
+        localizedHeaders?['name'] ?? 'Name',
+        localizedHeaders?['family_name'] ?? 'Family Name',
+        localizedHeaders?['father_name'] ?? 'Father Name',
+        localizedHeaders?['mother_name'] ?? 'Mother Name',
+        localizedHeaders?['birth_date'] ?? 'Birth Date',
+        localizedHeaders?['birth_place'] ?? 'Birth Place',
+        localizedHeaders?['id_card_number'] ?? 'ID Card Number',
+        localizedHeaders?['issuing_authority'] ?? 'Issuing Authority',
+        localizedHeaders?['university'] ?? 'University',
+        localizedHeaders?['department'] ?? 'Department',
+        localizedHeaders?['year_of_study'] ?? 'Year of Study',
+        localizedHeaders?['has_other_degree'] ?? 'Has Other Degree',
+        localizedHeaders?['email'] ?? 'Email',
+        localizedHeaders?['phone'] ?? 'Phone',
+        localizedHeaders?['tax_number'] ?? 'Tax Number',
+        localizedHeaders?['father_job'] ?? 'Father Job',
+        localizedHeaders?['mother_job'] ?? 'Mother Job',
+        localizedHeaders?['parent_address'] ?? 'Parent Address',
+        localizedHeaders?['parent_city'] ?? 'Parent City',
+        localizedHeaders?['parent_region'] ?? 'Parent Region',
+        localizedHeaders?['parent_postal'] ?? 'Parent Postal',
+        localizedHeaders?['parent_country'] ?? 'Parent Country',
+        localizedHeaders?['parent_number'] ?? 'Parent Number',
+        localizedHeaders?['created_at'] ?? 'Created At',
       ];
 
       final startRow = filters.isNotEmpty ? 6 : 0;
@@ -270,9 +370,13 @@ class ExcelService {
       }
 
       // Add student data
+      // Add student data rows
       for (var rowIndex = 0; rowIndex < students.length; rowIndex++) {
         final student = students[rowIndex];
-        final studentData = student.toExcelMap();
+        final studentData = student.toExcelMap(
+          yesText: localizedHeaders?['yes'],
+          noText: localizedHeaders?['no'],
+        );
 
         var columnIndex = 0;
         for (final header in headers) {
@@ -283,19 +387,108 @@ class ExcelService {
             ),
           );
 
-          final value = studentData[header];
+          // Map localized header back to English key for data lookup
+          String englishKey = header;
+          if (localizedHeaders != null) {
+            // Find the English key that corresponds to this localized header
+            for (final entry in localizedHeaders.entries) {
+              if (entry.value == header) {
+                // Convert the key to the format used in toExcelMap()
+                switch (entry.key) {
+                  case 'id':
+                    englishKey = 'ID';
+                    break;
+                  case 'name':
+                    englishKey = 'Name';
+                    break;
+                  case 'family_name':
+                    englishKey = 'Family Name';
+                    break;
+                  case 'father_name':
+                    englishKey = 'Father Name';
+                    break;
+                  case 'mother_name':
+                    englishKey = 'Mother Name';
+                    break;
+                  case 'birth_date':
+                    englishKey = 'Birth Date';
+                    break;
+                  case 'birth_place':
+                    englishKey = 'Birth Place';
+                    break;
+                  case 'id_card_number':
+                    englishKey = 'ID Card Number';
+                    break;
+                  case 'issuing_authority':
+                    englishKey = 'Issuing Authority';
+                    break;
+                  case 'university':
+                    englishKey = 'University';
+                    break;
+                  case 'department':
+                    englishKey = 'Department';
+                    break;
+                  case 'year_of_study':
+                    englishKey = 'Year of Study';
+                    break;
+                  case 'has_other_degree':
+                    englishKey = 'Has Other Degree';
+                    break;
+                  case 'email':
+                    englishKey = 'Email';
+                    break;
+                  case 'phone':
+                    englishKey = 'Phone';
+                    break;
+                  case 'tax_number':
+                    englishKey = 'Tax Number';
+                    break;
+                  case 'father_job':
+                    englishKey = 'Father Job';
+                    break;
+                  case 'mother_job':
+                    englishKey = 'Mother Job';
+                    break;
+                  case 'parent_address':
+                    englishKey = 'Parent Address';
+                    break;
+                  case 'parent_city':
+                    englishKey = 'Parent City';
+                    break;
+                  case 'parent_region':
+                    englishKey = 'Parent Region';
+                    break;
+                  case 'parent_postal':
+                    englishKey = 'Parent Postal';
+                    break;
+                  case 'parent_country':
+                    englishKey = 'Parent Country';
+                    break;
+                  case 'parent_number':
+                    englishKey = 'Parent Phone';
+                    break;
+                  case 'created_at':
+                    englishKey = 'Created At';
+                    break;
+                }
+                break;
+              }
+            }
+          }
+
+          final value = studentData[englishKey];
           if (value != null && value.toString().isNotEmpty) {
             var cellValue = value.toString();
 
             // Format dates properly as text
-            if (header == 'Birth Date') {
+            if (englishKey == 'Birth Date') {
               try {
                 final dateTime = DateTime.parse(cellValue);
                 cellValue = DateFormat('dd/MM/yyyy').format(dateTime);
               } catch (e) {
                 // Keep original value if parsing fails
               }
-            } else if (header == 'Created At') {
+            } else if (englishKey == 'Created At') {
               try {
                 final dateTime = DateTime.parse(cellValue);
                 cellValue = DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
@@ -328,9 +521,10 @@ class ExcelService {
     }
   }
 
-  static Future<void> exportStudentsSummaryToExcel(
-    Map<String, dynamic> statistics,
-  ) async {
+  static Future<void> exportSummaryToExcel(
+    Map<String, dynamic> statistics, {
+    Map<String, String>? localizedTitles,
+  }) async {
     try {
       final excel = Excel.createExcel();
 
@@ -342,14 +536,14 @@ class ExcelService {
         excel.delete('Sheet1');
       } catch (e) {
         // Sheet1 might not exist or already deleted
-        debugPrint('Note: Could not delete Sheet1: $e');
       }
 
       // Title
       final titleCell = summarySheet.cell(
         CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
       );
-      titleCell.value = TextCellValue('Students Database Summary');
+      titleCell.value = TextCellValue(
+          localizedTitles?['summary'] ?? 'Students Database Summary');
       titleCell.cellStyle = CellStyle(bold: true, fontSize: 16);
 
       // Generation date
@@ -366,7 +560,7 @@ class ExcelService {
         CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 3),
       );
       totalCell.value = TextCellValue(
-        'Total Students: ${statistics['totalStudents']}',
+        '${localizedTitles?['total_students'] ?? 'Total Students'}: ${statistics['totalStudents']}',
       );
       totalCell.cellStyle = CellStyle(bold: true, fontSize: 14);
 
@@ -434,8 +628,9 @@ class ExcelService {
       summarySheet.setColumnAutoFit(1);
 
       // Generate and download summary Excel file
-      excel.save(fileName: 'students_summary.xlsx');
-      debugPrint('Summary Excel file downloaded successfully');
+      excel.save(
+          fileName:
+              localizedTitles?['students_summary'] ?? 'students_summary.xlsx');
     } catch (e) {
       throw Exception('Failed to export summary to Excel: $e');
     }

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show ChangeNotifier;
 import '../models/student.dart';
 import '../services/student_service.dart';
 

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -44,9 +43,6 @@ class AuthService {
           throw Exception('Authentication failed');
         }
       } catch (e) {
-        if (AppConfig.enableLogging) {
-          debugPrint('Supabase auth error: $e');
-        }
         throw Exception('Invalid email or password');
       }
     } else {
@@ -55,7 +51,7 @@ class AuthService {
     }
   }
 
-  // More secure mock sign in (temporary, for development only)
+  // Mock authentication for demo purposes
   Future<void> _secureSignIn(String email, String password) async {
     await Future.delayed(const Duration(seconds: 1));
 
@@ -75,7 +71,7 @@ class AuthService {
     }
   }
 
-  // Simple hash function for development (NOT for production)
+  // Simple hash function
   String _simpleHash(String input) {
     var hash = 0;
     for (var i = 0; i < input.length; i++) {
@@ -102,9 +98,7 @@ class AuthService {
       try {
         await Supabase.instance.client.auth.signOut();
       } catch (e) {
-        if (AppConfig.enableLogging) {
-          debugPrint('Supabase signout error: $e');
-        }
+        // Ignore signout errors
       }
     }
     _currentUser = null;
@@ -128,9 +122,6 @@ class AuthService {
       try {
         await Supabase.instance.client.auth.resetPasswordForEmail(email);
       } catch (e) {
-        if (AppConfig.enableLogging) {
-          debugPrint('Password reset error: $e');
-        }
         throw Exception('Failed to send password reset email');
       }
     } else {
@@ -193,9 +184,7 @@ class AuthService {
         await prefs.setString(_userKey, jsonEncode(_currentUser!.toJson()));
       }
     } catch (e) {
-      if (AppConfig.enableLogging) {
-        debugPrint('Error saving login state: $e');
-      }
+      // Ignore save errors
     }
   }
 
@@ -226,9 +215,6 @@ class AuthService {
         }
       }
     } catch (e) {
-      if (AppConfig.enableLogging) {
-        debugPrint('Error loading login state: $e');
-      }
       await _clearLoginState();
     }
   }
@@ -240,9 +226,7 @@ class AuthService {
       await prefs.remove(_isLoggedInKey);
       await prefs.remove(_userKey);
     } catch (e) {
-      if (AppConfig.enableLogging) {
-        debugPrint('Error clearing login state: $e');
-      }
+      // Ignore clear errors
     }
   }
 }

@@ -255,7 +255,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            _student!.yearOfStudy,
+                            _student!.yearOfStudy ?? '',
                             style: TextStyle(
                               color: Colors.blue[700],
                               fontWeight: FontWeight.w500,
@@ -306,8 +306,10 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               ),
               const SizedBox(height: 16),
               _buildInfoRow('Full Name', _student!.fullName, Icons.person),
-              _buildInfoRow('Father Name', _student!.fatherName, Icons.person),
-              _buildInfoRow('Mother Name', _student!.motherName, Icons.person),
+              _buildInfoRow(
+                  'Father Name', _student!.fatherName ?? '', Icons.person),
+              _buildInfoRow(
+                  'Mother Name', _student!.motherName ?? '', Icons.person),
               _buildInfoRow(
                 'Birth Date',
                 '${_student!.birthDate.day}/${_student!.birthDate.month}/${_student!.birthDate.year}',
@@ -315,18 +317,19 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               ),
               _buildInfoRow(
                 'Birth Place',
-                _student!.birthPlace,
+                _student!.birthPlace ?? '',
                 Icons.location_on,
               ),
               _buildInfoRow(
                   'ID Card', _student!.idCardNumber, Icons.credit_card),
               _buildInfoRow(
                 'Issuing Authority',
-                _student!.issuingAuthority,
+                _student!.issuingAuthority ?? '',
                 Icons.account_balance,
               ),
-              if (_student!.taxNumber.isNotEmpty)
-                _buildInfoRow('Tax Number', _student!.taxNumber, Icons.receipt),
+              if (_student!.taxNumber?.isNotEmpty == true)
+                _buildInfoRow(
+                    'Tax Number', _student!.taxNumber ?? '', Icons.receipt),
             ],
           ),
         ),
@@ -347,12 +350,13 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               const SizedBox(height: 16),
               _buildInfoRow(
                 'University',
-                _student!.university,
+                _student!.university ?? '',
                 Icons.account_balance,
               ),
-              _buildInfoRow('Department', _student!.department, Icons.category),
               _buildInfoRow(
-                  'Year of Study', _student!.yearOfStudy, Icons.school),
+                  'Department', _student!.department ?? '', Icons.category),
+              _buildInfoRow(
+                  'Year of Study', _student!.yearOfStudy ?? '', Icons.school),
               _buildInfoRow(
                 'Has Other Degree',
                 _student!.hasOtherDegree ? 'Yes' : 'No',
@@ -382,7 +386,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               ),
               const SizedBox(height: 16),
               _buildInfoRow('Email', _student!.email, Icons.email),
-              _buildInfoRow('Phone', _student!.phone, Icons.phone),
+              _buildInfoRow('Phone', _student!.phone ?? '', Icons.phone),
             ],
           ),
         ),
@@ -401,17 +405,19 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     ),
               ),
               const SizedBox(height: 16),
-              if (_student!.fatherJob.isNotEmpty)
-                _buildInfoRow('Father Job', _student!.fatherJob, Icons.work),
-              if (_student!.motherJob.isNotEmpty)
-                _buildInfoRow('Mother Job', _student!.motherJob, Icons.work),
-              if (_student!.parentAddress.isNotEmpty)
+              if (_student!.fatherJob?.isNotEmpty == true)
+                _buildInfoRow(
+                    'Father Job', _student!.fatherJob ?? '', Icons.work),
+              if (_student!.motherJob?.isNotEmpty == true)
+                _buildInfoRow(
+                    'Mother Job', _student!.motherJob ?? '', Icons.work),
+              if (_student!.parentAddress?.isNotEmpty == true)
                 _buildInfoRow(
                     'Address', _student!.fullParentAddress, Icons.home),
-              if (_student!.parentNumber.isNotEmpty)
+              if (_student!.parentPhone?.isNotEmpty == true)
                 _buildInfoRow(
                   'Parent Phone',
-                  _student!.parentNumber,
+                  _student!.parentPhone ?? '',
                   Icons.phone,
                 ),
             ],

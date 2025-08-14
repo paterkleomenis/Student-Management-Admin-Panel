@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Application configuration management
@@ -11,7 +10,6 @@ class AppConfig {
     if (!_initialized) {
       await dotenv.load();
       _initialized = true;
-      debugPrint('AppConfig initialized successfully');
     }
   }
 
@@ -61,14 +59,9 @@ class AppConfig {
   static String get supabaseAnonKey => getRequired('SUPABASE_ANON_KEY');
 
   // App Configuration
-  static String get appEnv => getOptional('APP_ENV', 'development');
+  static String get appEnv => getOptional('APP_ENV', 'production');
   static bool get isProduction => appEnv == 'production';
-  static bool get isDevelopment => appEnv == 'development';
-  static bool get debugMode => getBool('DEBUG_MODE', defaultValue: kDebugMode);
-
   // Security Settings
-  static bool get enableLogging =>
-      getBool('ENABLE_LOGGING', defaultValue: true);
   static int get sessionTimeout =>
       getInt('SESSION_TIMEOUT', defaultValue: 3600);
 
@@ -103,27 +96,5 @@ class AppConfig {
     if (!url.startsWith('https://') || !url.contains('supabase.co')) {
       throw Exception('Invalid SUPABASE_URL format');
     }
-
-    debugPrint('AppConfig validation passed');
-  }
-
-  /// Get configuration summary for debugging
-  static Map<String, dynamic> getSummary() {
-    _ensureInitialized();
-    return {
-      'app_env': appEnv,
-      'is_production': isProduction,
-      'debug_mode': debugMode,
-      'supabase_configured': dotenv.env['SUPABASE_URL'] != null,
-      'enable_logging': enableLogging,
-      'session_timeout': sessionTimeout,
-      'use_supabase_auth': useSupabaseAuth,
-    };
-  }
-
-  /// Clear configuration (for testing)
-  @visibleForTesting
-  static void reset() {
-    _initialized = false;
   }
 }

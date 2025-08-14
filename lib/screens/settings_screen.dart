@@ -160,16 +160,7 @@ class SettingsScreen extends StatelessWidget {
                             '${langService.getString('settings.version')} 1.0.0',
                           ),
                         ),
-                        ListTile(
-                          leading: const Icon(Icons.developer_mode),
-                          title: Text(
-                            langService.getString('settings.developer_mode'),
-                          ),
-                          subtitle: Text(
-                            langService.getString('settings.enabled'),
-                          ),
-                          trailing: Switch(value: true, onChanged: (value) {}),
-                        ),
+
                       ],
                     ),
                   ),

@@ -89,24 +89,24 @@ class _StudentsDataTableState extends State<StudentsDataTable>
           bValue = b.familyName.toLowerCase();
           break;
         case 2:
-          aValue = a.email.toLowerCase();
-          bValue = b.email.toLowerCase();
+          aValue = (a.email ?? '').toLowerCase();
+          bValue = (b.email ?? '').toLowerCase();
           break;
         case 3:
-          aValue = a.university.toLowerCase();
-          bValue = b.university.toLowerCase();
+          aValue = (a.university ?? '').toLowerCase();
+          bValue = (b.university ?? '').toLowerCase();
           break;
         case 4:
-          aValue = a.department.toLowerCase();
-          bValue = b.department.toLowerCase();
+          aValue = (a.department ?? '').toLowerCase();
+          bValue = (b.department ?? '').toLowerCase();
           break;
         case 5:
-          aValue = a.yearOfStudy;
-          bValue = b.yearOfStudy;
+          aValue = a.yearOfStudy ?? '';
+          bValue = b.yearOfStudy ?? '';
           break;
         case 6:
-          aValue = a.phone;
-          bValue = b.phone;
+          aValue = a.phone ?? '';
+          bValue = b.phone ?? '';
           break;
         case 7:
           aValue = a.createdAt;
@@ -283,47 +283,47 @@ class _StudentsDataTableState extends State<StudentsDataTable>
                   DataColumn(
                     label: const Text('University'),
                     onSort: (columnIndex, ascending) => _sort(
-                      (student) => student.university.toLowerCase(),
+                      (student) => (student.university ?? '').toLowerCase(),
                       columnIndex,
                     ),
                   ),
                   DataColumn(
                     label: const Text('Department'),
                     onSort: (columnIndex, ascending) => _sort(
-                      (student) => student.department.toLowerCase(),
+                      (student) => (student.department ?? '').toLowerCase(),
                       columnIndex,
                     ),
                   ),
                   DataColumn(
                     label: const Text('Year'),
                     onSort: (columnIndex, ascending) =>
-                        _sort((student) => student.yearOfStudy, columnIndex),
+                        _sort((student) => student.yearOfStudy ?? '', columnIndex),
                   ),
                   const DataColumn(label: Text('Phone')),
                   DataColumn(
                     label: const Text('Created'),
                     onSort: (columnIndex, ascending) =>
-                        _sort((student) => student.createdAt, columnIndex),
+                        _sort((student) => student.createdAt?.toIso8601String() ?? '', columnIndex),
                   ),
                   const DataColumn(label: Text('Actions')),
                 ],
                 rows: _sortedStudents
                     .map(
                       (student) => DataRow(
-                        key: ValueKey(student.id),
+                        key: ValueKey(student.id ?? ''),
                         cells: [
-                          DataCell(Text(student.name)),
-                          DataCell(Text(student.familyName)),
+                          DataCell(Text(student.name ?? '')),
+                          DataCell(Text(student.familyName ?? '')),
                           DataCell(
                             Text(
-                              student.email,
+                              student.email ?? '',
                               style: const TextStyle(color: Colors.blue),
                             ),
                           ),
-                          DataCell(Text(student.university)),
-                          DataCell(Text(student.department)),
-                          DataCell(Text(student.yearOfStudy)),
-                          DataCell(Text(student.phone)),
+                          DataCell(Text(student.university ?? '')),
+                          DataCell(Text(student.department ?? '')),
+                          DataCell(Text(student.yearOfStudy ?? '')),
+                          DataCell(Text(student.phone ?? '')),
                           DataCell(Text(_dateFormat.format(student.createdAt))),
                           DataCell(
                             Row(
@@ -407,7 +407,7 @@ class _StudentsDataTableState extends State<StudentsDataTable>
       itemBuilder: (context, index) {
         final student = _sortedStudents[index];
         return StudentMobileCard(
-          key: ValueKey(student.id),
+          key: ValueKey(student.id ?? ""),
           student: student,
           onView: widget.onView,
           onEdit: widget.onEdit,
@@ -469,7 +469,7 @@ class StudentMobileCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
-            student.email,
+            student.email ?? '',
             style: _subtitleStyle,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -512,16 +512,16 @@ class StudentMobileCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Column(
                 children: [
-                  _buildDetailRow('Phone', student.phone),
-                  _buildDetailRow("Father's Name", student.fatherName),
-                  _buildDetailRow("Mother's Name", student.motherName),
+                  _buildDetailRow('Phone', student.phone ?? ""),
+                  _buildDetailRow("Father's Name", student.fatherName ?? ""),
+                  _buildDetailRow("Mother's Name", student.motherName ?? ""),
                   _buildDetailRow(
                     'Birth Date',
                     _dateFormat.format(student.birthDate),
                   ),
-                  _buildDetailRow('University', student.university),
-                  _buildDetailRow('Department', student.department),
-                  _buildDetailRow('Year of Study', student.yearOfStudy),
+                  _buildDetailRow('University', student.university ?? ""),
+                  _buildDetailRow('Department', student.department ?? ""),
+                  _buildDetailRow('Year of Study', student.yearOfStudy ?? ""),
                   _buildDetailRow(
                     'Created',
                     _dateTimeFormat.format(student.createdAt),
