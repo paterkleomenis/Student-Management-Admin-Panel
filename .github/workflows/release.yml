@@ -36,17 +36,17 @@ jobs:
       - name: Build Windows
         run: flutter build windows --release
 
-      - name: Rename files
+      - name: Package files
         run: |
           copy "build\app\outputs\flutter-apk\app-release.apk" "admin_panel.apk"
-          copy "build\windows\x64\runner\Release\admin_panel.exe" "admin_panel.exe"
+          powershell Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "admin_panel_windows.zip"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             admin_panel.apk
-            admin_panel.exe
+            admin_panel_windows.zip
           name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
