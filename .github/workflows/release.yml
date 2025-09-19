@@ -21,7 +21,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.24.0"
+          flutter-version: "3.35.3"
           channel: "stable"
 
       - name: Install dependencies
@@ -30,24 +30,20 @@ jobs:
       - name: Build Android APK
         run: flutter build apk --release
 
-      - name: Build Android App Bundle
-        run: flutter build appbundle --release
-
       - name: Build Windows
         run: flutter build windows --release
 
-      - name: Archive Windows build
+      - name: Rename files
         run: |
-          cd build/windows/x64/runner/Release
-          tar -czf ../../../../../admin_panel_windows.tar.gz *
+          copy "build\app\outputs\flutter-apk\app-release.apk" "admin_panel.apk"
+          copy "build\windows\x64\runner\Release\admin_panel.exe" "admin_panel.exe"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/bundle/release/app-release.aab
-            admin_panel_windows.tar.gz
+            admin_panel.apk
+            admin_panel.exe
           name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false

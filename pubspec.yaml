@@ -36,7 +36,7 @@ dependencies:
   google_fonts: ^6.2.1
 
   # Internationalization and localization
-  intl: ^0.19.0
+  intl: ^0.20.2
 
   # Storage and configuration
   path_provider: ^2.0.11
