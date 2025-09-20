@@ -36,21 +36,15 @@ jobs:
       - name: Build Android APK
         run: flutter build apk --release --dart-define-from-file=.env
 
-      - name: Build Android App Bundle
-        run: flutter build appbundle --release --dart-define-from-file=.env
-
       - name: Rename Android files
         run: |
           cp build/app/outputs/flutter-apk/app-release.apk admin_panel.apk
-          cp build/app/outputs/bundle/release/app-release.aab admin_panel.aab
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
           name: android-builds
-          path: |
-            admin_panel.apk
-            admin_panel.aab
+          path: admin_panel.apk
 
   # Windows Build Job
   build-windows:
@@ -120,17 +114,11 @@ jobs:
         run: |
           & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
 
-      - name: Package Windows build
-        run: |
-          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "admin_panel_windows.zip"
-
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-builds
-          path: |
-            admin_panel_installer.exe
-            admin_panel_windows.zip
+          path: admin_panel_installer.exe
 
   # Release Job - Depends on Android and Windows builds
   create-release:
@@ -147,20 +135,16 @@ jobs:
         with:
           files: |
             admin_panel.apk
-            admin_panel.aab
             admin_panel_installer.exe
-            admin_panel_windows.zip
           name: Release ${{ github.ref_name }}
           body: |
             ## Downloads
 
             ### Android
             - **APK**: `admin_panel.apk` - For sideloading on Android devices
-            - **AAB**: `admin_panel.aab` - For Google Play Store distribution
 
             ### Windows
             - **Installer**: `admin_panel_installer.exe` - Windows installer with shortcuts
-            - **Portable**: `admin_panel_windows.zip` - Portable Windows application
 
             ## Installation Instructions
 
@@ -170,8 +154,7 @@ jobs:
             3. Install the APK file
 
             ### Windows
-            1. **Easy Install**: Download and run `admin_panel_installer.exe`
-            2. **Portable**: Download `admin_panel_windows.zip`, extract and run `admin_panel.exe`
+            1. Download and run `admin_panel_installer.exe` to install the application
           draft: false
           prerelease: false
         env:
