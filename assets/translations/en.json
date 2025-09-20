@@ -56,8 +56,7 @@
     "logout_confirm": "Are you sure you want to sign out?",
     "logout_error": "Sign out failed",
     "sign_out": "Sign Out",
-    "administrator": "Administrator",
-    "demo_account": "Demo Account"
+    "administrator": "Administrator"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -117,7 +116,6 @@
       "parent_region": "Parent Region",
       "parent_postal": "Parent Postal Code",
       "parent_country": "Parent Country",
-      "parent_number": "Parent Phone Number",
       "created_at": "Created At",
       "full_name": "Full Name",
       "status": "Status",
@@ -135,8 +133,7 @@
       "parent_city_short": "Parent City",
       "parent_region_short": "Parent Region",
       "parent_postal_short": "Parent Postal",
-      "parent_country_short": "Parent Country",
-      "parent_phone_short": "Parent Phone"
+      "parent_country_short": "Parent Country"
     },
     "filters": {
       "search_placeholder": "Search students...",
@@ -338,7 +335,6 @@
     "region": "Region",
     "postal_code": "Postal Code",
     "country": "Country",
-    "parent_contact": "Parent Contact",
     "created_at": "Created At"
   },
   "student_form": {
@@ -372,7 +368,6 @@
       "region": "Region",
       "postal_code": "Postal Code",
       "country": "Country",
-      "parent_phone": "Parent Phone",
       "select_date": "Select date"
     },
     "validators": {
@@ -432,7 +427,6 @@
       "parent_region": "Parent Region",
       "parent_postal": "Parent Postal",
       "parent_country": "Parent Country",
-      "parent_number": "Parent Number",
       "created_at": "Created At",
       "yes": "Yes",
       "no": "No"

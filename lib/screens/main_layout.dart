@@ -9,7 +9,6 @@ import '../utils/desktop_constants.dart';
 import '../widgets/simple_language_toggle.dart';
 
 class MainLayout extends StatefulWidget {
-
   const MainLayout({required this.child, super.key});
   final Widget child;
 
@@ -22,27 +21,27 @@ class _MainLayoutState extends State<MainLayout> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<NavigationItem> _getNavigationItems(LanguageService langService) => [
-      NavigationItem(
-        icon: Icons.dashboard,
-        label: langService.dashboard,
-        route: '/dashboard',
-      ),
-      NavigationItem(
-        icon: Icons.school,
-        label: langService.students,
-        route: '/students',
-      ),
-      NavigationItem(
-        icon: Icons.analytics,
-        label: langService.reports,
-        route: '/reports',
-      ),
-      NavigationItem(
-        icon: Icons.settings,
-        label: langService.settings,
-        route: '/settings',
-      ),
-    ];
+        NavigationItem(
+          icon: Icons.dashboard,
+          label: langService.dashboard,
+          route: '/dashboard',
+        ),
+        NavigationItem(
+          icon: Icons.school,
+          label: langService.students,
+          route: '/students',
+        ),
+        NavigationItem(
+          icon: Icons.analytics,
+          label: langService.reports,
+          route: '/reports',
+        ),
+        NavigationItem(
+          icon: Icons.settings,
+          label: langService.settings,
+          route: '/settings',
+        ),
+      ];
 
   Future<void> _signOut() async {
     final langService = Provider.of<LanguageService>(context, listen: false);
@@ -94,43 +93,44 @@ class _MainLayoutState extends State<MainLayout> {
 
     return Consumer<LanguageService>(
       builder: (context, langService, child) => Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: Colors.grey[50],
-          body: Row(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                width: _isCollapsed ? 70 : DesktopConstants.sidebarWidth,
-                child: _buildSidebar(currentLocation, langService),
+        key: _scaffoldKey,
+        backgroundColor: Colors.grey[50],
+        body: Row(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              width: _isCollapsed ? 70 : DesktopConstants.sidebarWidth,
+              child: _buildSidebar(currentLocation, langService),
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  _buildTopBar(langService),
+                  Expanded(child: widget.child),
+                ],
               ),
-              Expanded(
-                child: Column(
-                  children: [
-                    _buildTopBar(langService),
-                    Expanded(child: widget.child),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
     );
   }
 
-  Widget _buildSidebar(String currentLocation, LanguageService langService) => DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(1, 0),
-          ),
-        ],
-      ),
-      child: _buildSidebarContent(currentLocation, langService),
-    );
+  Widget _buildSidebar(String currentLocation, LanguageService langService) =>
+      DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.1),
+              spreadRadius: 1,
+              blurRadius: 3,
+              offset: const Offset(1, 0),
+            ),
+          ],
+        ),
+        child: _buildSidebarContent(currentLocation, langService),
+      );
 
   Widget _buildSidebarContent(
     String currentLocation,
@@ -393,73 +393,72 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   Widget _buildTopBar(LanguageService langService) => Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // Left side: Collapse Button and Title
-          Expanded(
-            child: Row(
-              children: [
-                // Collapse Button
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _isCollapsed = !_isCollapsed;
-                      });
-                    },
-                    padding: const EdgeInsets.all(8),
-                    iconSize: 20,
-                    icon: Icon(
-                      _isCollapsed ? Icons.menu : Icons.menu_open,
-                      color: Colors.grey[600],
-                    ),
-                    tooltip: _isCollapsed
-                        ? langService.getString('app.expand_sidebar')
-                        : langService.getString('app.collapse_sidebar'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Title
-                Flexible(
-                  child: Text(
-                    langService.getString('app.admin_panel'),
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[800],
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+        height: 70,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.1),
+              spreadRadius: 1,
+              blurRadius: 3,
+              offset: const Offset(0, 1),
             ),
-          ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Left side: Collapse Button and Title
+            Expanded(
+              child: Row(
+                children: [
+                  // Collapse Button
+                  SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _isCollapsed = !_isCollapsed;
+                        });
+                      },
+                      padding: const EdgeInsets.all(8),
+                      iconSize: 20,
+                      icon: Icon(
+                        _isCollapsed ? Icons.menu : Icons.menu_open,
+                        color: Colors.grey[600],
+                      ),
+                      tooltip: _isCollapsed
+                          ? langService.getString('app.expand_sidebar')
+                          : langService.getString('app.collapse_sidebar'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Title
+                  Flexible(
+                    child: Text(
+                      langService.getString('app.admin_panel'),
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[800],
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-          // Right side: Language Toggle
-          const SimpleLanguageToggle(),
-        ],
-      ),
-    );
+            // Right side: Language Toggle
+            const SimpleLanguageToggle(),
+          ],
+        ),
+      );
 }
 
 class NavigationItem {
-
   NavigationItem({
     required this.icon,
     required this.label,

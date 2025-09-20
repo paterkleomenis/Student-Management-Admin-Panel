@@ -243,7 +243,6 @@ class _DesktopStudentsTableState extends State<DesktopStudentsTable> {
         _buildHeaderCell(langService.studentParentRegion, 125, 20),
         _buildHeaderCell(langService.studentParentPostal, 95, 21),
         _buildHeaderCell(langService.studentParentCountry, 115, 22),
-        _buildHeaderCell(langService.studentParentPhone, 125, 23),
         _buildHeaderCell(langService.studentCreatedAt, 115, 24),
       ];
 
@@ -308,7 +307,8 @@ class _DesktopStudentsTableState extends State<DesktopStudentsTable> {
       [
         _buildDataCell(student.id ?? "", 95, fontWeight: FontWeight.w500),
         _buildDataCell(student.name ?? "", 115, fontWeight: FontWeight.w500),
-        _buildDataCell(student.familyName ?? "", 115, fontWeight: FontWeight.w500),
+        _buildDataCell(student.familyName ?? "", 115,
+            fontWeight: FontWeight.w500),
         _buildDataCell(student.fatherName ?? "", 115),
         _buildDataCell(student.motherName ?? "", 115),
         _buildDataCell(langService.formatDisplayDate(student.birthDate), 105),
@@ -334,7 +334,6 @@ class _DesktopStudentsTableState extends State<DesktopStudentsTable> {
         _buildDataCell(student.parentRegion ?? "", 125),
         _buildDataCell(student.parentPostal ?? "", 95),
         _buildDataCell(student.parentCountry ?? "", 115),
-        _buildDataCell(student.parentPhone ?? "", 125),
         _buildDataCell(langService.formatDisplayDate(student.createdAt), 115),
       ];
 

@@ -27,7 +27,6 @@ class Student {
     this.parentRegion,
     this.parentPostal,
     this.parentCountry,
-    this.parentPhone,
   });
 
   factory Student.fromJson(Map<String, dynamic> json) => Student(
@@ -54,7 +53,6 @@ class Student {
         parentRegion: json['parent_region'] as String?,
         parentPostal: json['parent_postal'] as String?,
         parentCountry: json['parent_country'] as String?,
-        parentPhone: json['parent_number'] as String?,
         createdAt: json['created_at'] != null
             ? DateTime.parse(json['created_at'] as String)
             : DateTime.now(),
@@ -83,7 +81,7 @@ class Student {
   final String? parentRegion;
   final String? parentPostal;
   final String? parentCountry;
-  final String? parentPhone;
+
   final DateTime createdAt;
 
   @override
@@ -128,7 +126,6 @@ class Student {
         'parent_region': parentRegion,
         'parent_postal': parentPostal,
         'parent_country': parentCountry,
-        'parent_number': parentPhone,
         'created_at': createdAt.toIso8601String(),
       };
 
@@ -145,7 +142,8 @@ class Student {
         'University': university ?? '',
         'Department': department ?? '',
         'Year of Study': yearOfStudy ?? '',
-        'Has Other Degree': hasOtherDegree ? (yesText ?? 'Yes') : (noText ?? 'No'),
+        'Has Other Degree':
+            hasOtherDegree ? (yesText ?? 'Yes') : (noText ?? 'No'),
         'Email': email,
         'Phone': phone ?? '',
         'Tax Number': taxNumber ?? '',
@@ -156,7 +154,6 @@ class Student {
         'Parent Region': parentRegion ?? '',
         'Parent Postal': parentPostal ?? '',
         'Parent Country': parentCountry ?? '',
-        'Parent Phone': parentPhone ?? '',
         'Created At': createdAt.toIso8601String().split('T')[0],
       };
 
@@ -184,7 +181,6 @@ class Student {
     String? parentRegion,
     String? parentPostal,
     String? parentCountry,
-    String? parentPhone,
     DateTime? createdAt,
   }) =>
       Student(
@@ -211,7 +207,6 @@ class Student {
         parentRegion: parentRegion ?? this.parentRegion,
         parentPostal: parentPostal ?? this.parentPostal,
         parentCountry: parentCountry ?? this.parentCountry,
-        parentPhone: parentPhone ?? this.parentPhone,
         createdAt: createdAt ?? this.createdAt,
       );
 

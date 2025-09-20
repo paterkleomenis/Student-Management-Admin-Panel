@@ -59,7 +59,6 @@ class ExcelService {
         localizedHeaders?['parent_region'] ?? 'Parent Region',
         localizedHeaders?['parent_postal'] ?? 'Parent Postal',
         localizedHeaders?['parent_country'] ?? 'Parent Country',
-        localizedHeaders?['parent_number'] ?? 'Parent Number',
         localizedHeaders?['created_at'] ?? 'Created At',
       ];
 
@@ -168,9 +167,7 @@ class ExcelService {
                   case 'parent_country':
                     englishKey = 'Parent Country';
                     break;
-                  case 'parent_number':
-                    englishKey = 'Parent Phone';
-                    break;
+
                   case 'created_at':
                     englishKey = 'Created At';
                     break;
@@ -354,7 +351,6 @@ class ExcelService {
         localizedHeaders?['parent_region'] ?? 'Parent Region',
         localizedHeaders?['parent_postal'] ?? 'Parent Postal',
         localizedHeaders?['parent_country'] ?? 'Parent Country',
-        localizedHeaders?['parent_number'] ?? 'Parent Number',
         localizedHeaders?['created_at'] ?? 'Created At',
       ];
 
@@ -464,9 +460,7 @@ class ExcelService {
                   case 'parent_country':
                     englishKey = 'Parent Country';
                     break;
-                  case 'parent_number':
-                    englishKey = 'Parent Phone';
-                    break;
+
                   case 'created_at':
                     englishKey = 'Created At';
                     break;

@@ -256,13 +256,6 @@ class StudentDetailDialog extends StatelessWidget {
                               student.parentCountry ?? '',
                               langService,
                             ),
-                            _buildInfoRow(
-                              langService
-                                  .getString('student_detail.parent_contact'),
-                              student.parentPhone ?? '',
-                              langService,
-                              isPhone: true,
-                            ),
                           ],
                           langService,
                         ),

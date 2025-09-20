@@ -73,11 +73,22 @@ SUPABASE_URL=your_supabase_project_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 
 # Optional: Additional Configuration
-APP_ENV=development
-DEBUG_MODE=true
+APP_ENV=production
+SESSION_TIMEOUT=3600
+ENABLE_ANALYTICS=false
 ```
 
-4. **Database Setup:**
+4. **Run the Application:**
+```bash
+# Development
+flutter run --dart-define-from-file=.env
+
+# For different environments, create specific files:
+# .env.development, .env.staging, .env.production
+flutter run --dart-define-from-file=.env.development
+```
+
+5. **Database Setup:**
 
    Set up your Supabase database with the required tables:
    - `dormitory_students` - Main student applications
@@ -205,13 +216,21 @@ The application supports comprehensive internationalization:
 
 ### Build for Production
 ```bash
-# Using the production script
-./scripts/build_production.sh
+# Web build
+flutter build web --release --dart-define-from-file=.env
 
-# Manual build
-flutter build web --release \
-  --dart-define=APP_ENV=production \
-  --dart-define=DEBUG_MODE=false
+# Android APK
+flutter build apk --release --dart-define-from-file=.env
+
+# Android App Bundle
+flutter build appbundle --release --dart-define-from-file=.env
+
+# iOS (on macOS)
+flutter build ios --release --dart-define-from-file=.env
+
+# For different environments
+flutter build web --release --dart-define-from-file=.env.production
+flutter build apk --release --dart-define-from-file=.env.staging
 ```
 
 ### Hosting Options
@@ -221,9 +240,16 @@ flutter build web --release \
 - **Traditional Web Server**: Apache/Nginx with static files
 
 ### Environment Variables
-Ensure your production environment has:
-- `SUPABASE_URL`: Your production Supabase URL
-- `SUPABASE_ANON_KEY`: Your production Supabase anonymous key
+Your `.env` file should contain:
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SESSION_TIMEOUT=3600
+ENABLE_ANALYTICS=false
+APP_ENV=production
+```
+
+**Security Note**: Environment variables are now compiled into the app at build time using `--dart-define-from-file` for better security. The `.env` file is never bundled with the final application.
 
 
 

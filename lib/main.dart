@@ -22,9 +22,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    // Initialize secure configuration
+    // Initialize secure configuration (now just validates compile-time constants)
     await AppConfig.initialize();
-    AppConfig.validate();
 
     // Initialize EasyLocalization
     await EasyLocalization.ensureInitialized();
@@ -67,7 +66,7 @@ void main() async {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Please check your .env file configuration.\n$e',
+                  'Please check your environment configuration.\nMake sure to run with: flutter run --dart-define-from-file=.env\n$e',
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 16),
                 ),
@@ -84,7 +83,9 @@ void main() async {
 
 class AdminPanelApp extends StatelessWidget {
   const AdminPanelApp({
-    required this.authService, required this.languageService, super.key,
+    required this.authService,
+    required this.languageService,
+    super.key,
   });
 
   final AuthService authService;
@@ -92,12 +93,12 @@ class AdminPanelApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MultiProvider(
-      providers: [
-        Provider<AuthService>.value(value: authService),
-        ChangeNotifierProvider<LanguageService>.value(value: languageService),
-      ],
-      child: Consumer<LanguageService>(
-        builder: (context, langService, child) => MaterialApp.router(
+        providers: [
+          Provider<AuthService>.value(value: authService),
+          ChangeNotifierProvider<LanguageService>.value(value: languageService),
+        ],
+        child: Consumer<LanguageService>(
+          builder: (context, langService, child) => MaterialApp.router(
             title: langService.appTitle,
             debugShowCheckedModeBanner: false,
             locale: langService.currentLocale,
@@ -145,72 +146,83 @@ class AdminPanelApp extends StatelessWidget {
             ),
             routerConfig: _createRouter(authService),
           ),
-      ),
-    );
+        ),
+      );
 }
 
 GoRouter _createRouter(AuthService authService) => GoRouter(
-    initialLocation: authService.isLoggedIn ? '/dashboard' : '/login',
-    redirect: (context, state) {
-      final isLoggedIn = authService.isLoggedIn && authService.isAdmin;
-      final isLoginRoute = state.fullPath == '/login';
+      initialLocation: authService.isLoggedIn ? '/dashboard' : '/login',
+      redirect: (context, state) {
+        final isLoggedIn = authService.isLoggedIn;
+        final isLoginRoute = state.fullPath == '/login';
 
-      // If not logged in and not on login page, redirect to login
-      if (!isLoggedIn && !isLoginRoute) {
-        return '/login';
-      }
+        // Check if user is logged in
+        if (!isLoggedIn && !isLoginRoute) {
+          return '/login';
+        }
 
-      // If logged in and on login page, redirect to dashboard
-      if (isLoggedIn && isLoginRoute) {
-        return '/dashboard';
-      }
+        // If logged in, check admin role for protected routes
+        if (isLoggedIn && !isLoginRoute) {
+          final isAdmin = authService.isAdmin;
+          if (!isAdmin) {
+            // Sign out non-admin users and redirect to login
+            authService.signOut();
+            return '/login';
+          }
+        }
 
-      // No redirect needed
-      return null;
-    },
-    routes: [
-      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
-      ShellRoute(
-        builder: (context, state, child) => MainLayout(child: child),
-        routes: [
-          GoRoute(
-            path: '/dashboard',
-            builder: (context, state) => const DashboardScreen(),
-          ),
-          GoRoute(
-            path: '/students',
-            builder: (context, state) => const StudentsScreen(),
-            routes: [
-              GoRoute(
-                path: '/add',
-                builder: (context, state) => const StudentFormScreen(),
-              ),
-              GoRoute(
-                path: '/edit/:id',
-                builder: (context, state) {
-                  final studentId = state.pathParameters['id'];
-                  return StudentFormScreen(studentId: studentId);
-                },
-              ),
-              GoRoute(
-                path: '/view/:id',
-                builder: (context, state) {
-                  final studentId = state.pathParameters['id'];
-                  return StudentDetailScreen(studentId: studentId);
-                },
-              ),
-            ],
-          ),
-          GoRoute(
-            path: '/reports',
-            builder: (context, state) => const ReportsScreen(),
-          ),
-          GoRoute(
-            path: '/settings',
-            builder: (context, state) => const SettingsScreen(),
-          ),
-        ],
-      ),
-    ],
-    errorBuilder: (context, state) => const ErrorScreen(),
-  );
+        // If logged in admin and on login page, redirect to dashboard
+        if (isLoggedIn && isLoginRoute) {
+          return '/dashboard';
+        }
+
+        // No redirect needed
+        return null;
+      },
+      routes: [
+        GoRoute(
+            path: '/login', builder: (context, state) => const LoginScreen()),
+        ShellRoute(
+          builder: (context, state, child) => MainLayout(child: child),
+          routes: [
+            GoRoute(
+              path: '/dashboard',
+              builder: (context, state) => const DashboardScreen(),
+            ),
+            GoRoute(
+              path: '/students',
+              builder: (context, state) => const StudentsScreen(),
+              routes: [
+                GoRoute(
+                  path: '/add',
+                  builder: (context, state) => const StudentFormScreen(),
+                ),
+                GoRoute(
+                  path: '/edit/:id',
+                  builder: (context, state) {
+                    final studentId = state.pathParameters['id'];
+                    return StudentFormScreen(studentId: studentId);
+                  },
+                ),
+                GoRoute(
+                  path: '/view/:id',
+                  builder: (context, state) {
+                    final studentId = state.pathParameters['id'];
+                    return StudentDetailScreen(studentId: studentId);
+                  },
+                ),
+              ],
+            ),
+            GoRoute(
+              path: '/reports',
+              builder: (context, state) => const ReportsScreen(),
+            ),
+            GoRoute(
+              path: '/settings',
+              builder: (context, state) => const SettingsScreen(),
+            ),
+          ],
+        ),
+      ],
+      errorBuilder: (context, state) => const ErrorScreen(),
+    );

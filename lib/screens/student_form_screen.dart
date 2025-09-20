@@ -41,7 +41,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
   final _parentRegionController = TextEditingController();
   final _parentPostalController = TextEditingController();
   final _parentCountryController = TextEditingController();
-  final _parentNumberController = TextEditingController();
+
   final _universityController = TextEditingController();
 
   DateTime? _selectedBirthDate;
@@ -188,7 +188,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     _parentRegionController.dispose();
     _parentPostalController.dispose();
     _parentCountryController.dispose();
-    _parentNumberController.dispose();
+
     _universityController.dispose();
     super.dispose();
   }
@@ -245,7 +245,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     _parentRegionController.text = student.parentRegion ?? '';
     _parentPostalController.text = student.parentPostal ?? '';
     _parentCountryController.text = student.parentCountry ?? '';
-    _parentNumberController.text = student.parentPhone ?? '';
+
     _emailController.text = student.email;
     _selectedBirthDate = student.birthDate;
     _universityController.text = student.university ?? '';
@@ -297,7 +297,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
           parentRegion: _parentRegionController.text.trim(),
           parentPostal: _parentPostalController.text.trim(),
           parentCountry: _parentCountryController.text.trim(),
-          parentPhone: _parentNumberController.text.trim(),
           createdAt: _existingStudent!.createdAt,
         );
         await _studentService.updateStudent(student);
@@ -327,7 +326,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
           'parent_region': _parentRegionController.text.trim(),
           'parent_postal': _parentPostalController.text.trim(),
           'parent_country': _parentCountryController.text.trim(),
-          'parent_number': _parentNumberController.text.trim(),
           'created_at': DateTime.now().toIso8601String(),
         };
         await _studentService.createStudentFromData(studentData);
@@ -953,23 +951,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 16),
-              Consumer<LanguageService>(
-                builder: (context, langService, child) => TextFormField(
-                  controller: _parentNumberController,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.phone,
-                  autocorrect: false,
-                  enableSuggestions: false,
-                  decoration: InputDecoration(
-                    labelText: langService
-                        .getString('student_form.fields.parent_phone'),
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.phone),
-                  ),
-                  validator: (value) => Validators.phone(value),
-                ),
               ),
             ],
           ),

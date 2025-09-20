@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-
 class LanguageService extends ChangeNotifier {
   static const String _languageKey = 'selected_language';
 
@@ -186,8 +184,6 @@ class LanguageService extends ChangeNotifier {
       getString('students.fields.parent_postal_short');
   String get studentParentCountry =>
       getString('students.fields.parent_country_short');
-  String get studentParentPhone =>
-      getString('students.fields.parent_phone_short');
 
   // Language display names
   String getLanguageDisplayName(String languageCode) {

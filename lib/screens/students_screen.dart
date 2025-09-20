@@ -148,37 +148,59 @@ class _StudentsScreenState extends State<StudentsScreen> {
       final localizedHeaders = {
         'id': langService.getString('student_form.export_headers.id'),
         'name': langService.getString('student_form.export_headers.name'),
-        'family_name': langService.getString('student_form.export_headers.family_name'),
-        'father_name': langService.getString('student_form.export_headers.father_name'),
-        'mother_name': langService.getString('student_form.export_headers.mother_name'),
-        'birth_date': langService.getString('student_form.export_headers.birth_date'),
-        'birth_place': langService.getString('student_form.export_headers.birth_place'),
-        'id_card_number': langService.getString('student_form.export_headers.id_card_number'),
-        'issuing_authority': langService.getString('student_form.export_headers.issuing_authority'),
-        'university': langService.getString('student_form.export_headers.university'),
-        'department': langService.getString('student_form.export_headers.department'),
-        'year_of_study': langService.getString('student_form.export_headers.year_of_study'),
-        'has_other_degree': langService.getString('student_form.export_headers.has_other_degree'),
+        'family_name':
+            langService.getString('student_form.export_headers.family_name'),
+        'father_name':
+            langService.getString('student_form.export_headers.father_name'),
+        'mother_name':
+            langService.getString('student_form.export_headers.mother_name'),
+        'birth_date':
+            langService.getString('student_form.export_headers.birth_date'),
+        'birth_place':
+            langService.getString('student_form.export_headers.birth_place'),
+        'id_card_number':
+            langService.getString('student_form.export_headers.id_card_number'),
+        'issuing_authority': langService
+            .getString('student_form.export_headers.issuing_authority'),
+        'university':
+            langService.getString('student_form.export_headers.university'),
+        'department':
+            langService.getString('student_form.export_headers.department'),
+        'year_of_study':
+            langService.getString('student_form.export_headers.year_of_study'),
+        'has_other_degree': langService
+            .getString('student_form.export_headers.has_other_degree'),
         'email': langService.getString('student_form.export_headers.email'),
         'phone': langService.getString('student_form.export_headers.phone'),
-        'tax_number': langService.getString('student_form.export_headers.tax_number'),
-        'father_job': langService.getString('student_form.export_headers.father_job'),
-        'mother_job': langService.getString('student_form.export_headers.mother_job'),
-        'parent_address': langService.getString('student_form.export_headers.parent_address'),
-        'parent_city': langService.getString('student_form.export_headers.parent_city'),
-        'parent_region': langService.getString('student_form.export_headers.parent_region'),
-        'parent_postal': langService.getString('student_form.export_headers.parent_postal'),
-        'parent_country': langService.getString('student_form.export_headers.parent_country'),
-        'parent_number': langService.getString('student_form.export_headers.parent_number'),
-        'created_at': langService.getString('student_form.export_headers.created_at'),
+        'tax_number':
+            langService.getString('student_form.export_headers.tax_number'),
+        'father_job':
+            langService.getString('student_form.export_headers.father_job'),
+        'mother_job':
+            langService.getString('student_form.export_headers.mother_job'),
+        'parent_address':
+            langService.getString('student_form.export_headers.parent_address'),
+        'parent_city':
+            langService.getString('student_form.export_headers.parent_city'),
+        'parent_region':
+            langService.getString('student_form.export_headers.parent_region'),
+        'parent_postal':
+            langService.getString('student_form.export_headers.parent_postal'),
+        'parent_country':
+            langService.getString('student_form.export_headers.parent_country'),
+        'created_at':
+            langService.getString('student_form.export_headers.created_at'),
         'yes': langService.getString('student_form.export_headers.yes'),
         'no': langService.getString('student_form.export_headers.no'),
       };
 
       final localizedTitles = {
-        'students_data': langService.getString('student_form.export_titles.students_data'),
-        'save_excel_title': langService.getString('student_form.export_files.save_excel_title'),
-        'students_export': langService.getString('student_form.export_files.students_export'),
+        'students_data':
+            langService.getString('student_form.export_titles.students_data'),
+        'save_excel_title':
+            langService.getString('student_form.export_files.save_excel_title'),
+        'students_export':
+            langService.getString('student_form.export_files.students_export'),
       };
 
       await ExcelService.exportStudentsToExcel(

@@ -17,7 +17,7 @@ class DatabaseClient {
       await Supabase.initialize(url: _url, anonKey: _anonKey);
     } catch (e) {
       throw Exception(
-        'Database initialization failed. Please check your environment configuration.',
+        'Database initialization failed. Please check your environment configuration.\nMake sure to run with: flutter run --dart-define-from-file=.env',
       );
     }
   }

@@ -43,8 +43,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error loading student: $e'),
+          const SnackBar(
+            content: Text('Error loading student data'),
             backgroundColor: Colors.red,
           ),
         );
@@ -95,8 +95,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       setState(() => _isDeleting = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error deleting student: $e'),
+          const SnackBar(
+            content: Text('Failed to delete student'),
             backgroundColor: Colors.red,
           ),
         );
@@ -414,12 +414,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               if (_student!.parentAddress?.isNotEmpty == true)
                 _buildInfoRow(
                     'Address', _student!.fullParentAddress, Icons.home),
-              if (_student!.parentPhone?.isNotEmpty == true)
-                _buildInfoRow(
-                  'Parent Phone',
-                  _student!.parentPhone ?? '',
-                  Icons.phone,
-                ),
             ],
           ),
         ),

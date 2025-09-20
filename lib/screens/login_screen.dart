@@ -57,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${langService.getString('auth.login_error')}: $e'),
+            content: Text(langService.getString('auth.login_error')),
             backgroundColor: Colors.red,
           ),
         );
@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) => Consumer<LanguageService>(
-      builder: (context, langService, child) => Scaffold(
+        builder: (context, langService, child) => Scaffold(
           backgroundColor: Colors.grey[50],
           body: SafeArea(
             child: Stack(
@@ -94,188 +94,147 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-    );
+      );
 
   Widget _buildLoginForm(LanguageService langService) => Container(
-      constraints: const BoxConstraints(maxWidth: 400),
-      child: Card(
-        elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeader(langService),
-                const SizedBox(height: 32),
-                _buildEmailField(langService),
-                const SizedBox(height: 20),
-                _buildPasswordField(langService),
-                const SizedBox(height: 32),
-                _buildSignInButton(langService),
-                const SizedBox(height: 20),
-                _buildDemoAccountInfo(langService),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-  Widget _buildHeader(LanguageService langService) => Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.blue[600],
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Card(
+          elevation: 8,
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Icon(
-            Icons.admin_panel_settings,
-            color: Colors.white,
-            size: 48,
-          ),
-        ),
-        const SizedBox(height: 20),
-        Text(
-          langService.getString('app.admin_panel'),
-          style: GoogleFonts.poppins(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[800],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          langService.appTitle,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-      ],
-    );
-
-  Widget _buildEmailField(LanguageService langService) => TextFormField(
-      controller: _emailController,
-      keyboardType: TextInputType.emailAddress,
-      textInputAction: TextInputAction.next,
-      enabled: !_isLoading,
-      decoration: InputDecoration(
-        labelText: langService.email,
-        prefixIcon: const Icon(Icons.email_outlined),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return langService.getString('forms.required_field');
-        }
-        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-          return langService.getString('forms.invalid_email');
-        }
-        return null;
-      },
-    );
-
-  Widget _buildPasswordField(LanguageService langService) => TextFormField(
-      controller: _passwordController,
-      obscureText: _obscurePassword,
-      textInputAction: TextInputAction.done,
-      enabled: !_isLoading,
-      onFieldSubmitted: (_) => _signIn(),
-      decoration: InputDecoration(
-        labelText: langService.password,
-        prefixIcon: const Icon(Icons.lock_outlined),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscurePassword ? Icons.visibility : Icons.visibility_off,
-            color: Colors.grey[600],
-          ),
-          onPressed: () {
-            setState(() {
-              _obscurePassword = !_obscurePassword;
-            });
-          },
-        ),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return langService.getString('forms.required_field');
-        }
-        if (value.length < 6) {
-          return langService.getString('forms.password_min_length');
-        }
-        return null;
-      },
-    );
-
-  Widget _buildSignInButton(LanguageService langService) => ElevatedButton(
-      onPressed: _isLoading ? null : _signIn,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue[600],
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 18),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 2,
-      ),
-      child: _isLoading
-          ? const SizedBox(
-              height: 24,
-              width: 24,
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 2,
-              ),
-            )
-          : Text(
-              langService.getString('auth.login_button'),
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(langService),
+                  const SizedBox(height: 32),
+                  _buildEmailField(langService),
+                  const SizedBox(height: 20),
+                  _buildPasswordField(langService),
+                  const SizedBox(height: 32),
+                  _buildSignInButton(langService),
+                ],
               ),
             ),
-    );
+          ),
+        ),
+      );
 
-  Widget _buildDemoAccountInfo(LanguageService langService) => Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.blue[50],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue[200]!),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildHeader(LanguageService langService) => Column(
         children: [
-          Row(
-            children: [
-              Icon(Icons.info_outline, size: 16, color: Colors.blue[600]),
-              const SizedBox(width: 8),
-              Text(
-                langService.getString('auth.demo_account'),
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.blue[800],
-                ),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.blue[600],
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.admin_panel_settings,
+              color: Colors.white,
+              size: 48,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            langService.getString('app.admin_panel'),
+            style: GoogleFonts.poppins(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[800],
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            '${langService.email}: admin@admin.com\n${langService.password}: 123456',
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.blue,
-              fontFamily: 'monospace',
+            langService.appTitle,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: Colors.grey[600],
             ),
           ),
         ],
-      ),
-    );
+      );
+
+  Widget _buildEmailField(LanguageService langService) => TextFormField(
+        controller: _emailController,
+        keyboardType: TextInputType.emailAddress,
+        textInputAction: TextInputAction.next,
+        enabled: !_isLoading,
+        decoration: InputDecoration(
+          labelText: langService.email,
+          prefixIcon: const Icon(Icons.email_outlined),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return langService.getString('forms.required_field');
+          }
+          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+            return langService.getString('forms.invalid_email');
+          }
+          return null;
+        },
+      );
+
+  Widget _buildPasswordField(LanguageService langService) => TextFormField(
+        controller: _passwordController,
+        obscureText: _obscurePassword,
+        textInputAction: TextInputAction.done,
+        enabled: !_isLoading,
+        onFieldSubmitted: (_) => _signIn(),
+        decoration: InputDecoration(
+          labelText: langService.password,
+          prefixIcon: const Icon(Icons.lock_outlined),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscurePassword ? Icons.visibility : Icons.visibility_off,
+              color: Colors.grey[600],
+            ),
+            onPressed: () {
+              setState(() {
+                _obscurePassword = !_obscurePassword;
+              });
+            },
+          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return langService.getString('forms.required_field');
+          }
+          return null;
+        },
+      );
+
+  Widget _buildSignInButton(LanguageService langService) => ElevatedButton(
+        onPressed: _isLoading ? null : _signIn,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue[600],
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 2,
+        ),
+        child: _isLoading
+            ? const SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            : Text(
+                langService.getString('auth.login_button'),
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+      );
 }
