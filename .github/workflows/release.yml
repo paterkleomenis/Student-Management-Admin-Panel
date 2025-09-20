@@ -9,9 +9,9 @@ permissions:
   contents: write
 
 jobs:
-  build:
-    runs-on: windows-latest
-
+  # Android Build Job
+  build-android:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -36,12 +36,40 @@ jobs:
       - name: Build Android APK
         run: flutter build apk --release --dart-define-from-file=.env
 
+      - name: Build Android App Bundle
+        run: flutter build appbundle --release --dart-define-from-file=.env
+
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-builds
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+
+  # Windows Build Job
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.3"
+          channel: "stable"
+
+      - name: Create .env file
+        run: echo "${{ secrets.ENV }}" > .env
+
+      - name: Install dependencies
+        run: flutter pub get
+
       - name: Build Windows
         run: flutter build windows --release --dart-define-from-file=.env
 
       - name: Install NSIS
-        run: |
-          choco install nsis -y
+        run: choco install nsis -y
 
       - name: Create NSIS installer script
         run: |
@@ -87,17 +115,210 @@ jobs:
         run: |
           & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
 
-      - name: Package APK
+      - name: Package Windows build
         run: |
-          copy "build\app\outputs\flutter-apk\app-release.apk" "admin_panel.apk"
+          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "admin_panel_windows.zip"
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-builds
+          path: |
+            admin_panel_installer.exe
+            admin_panel_windows.zip
+
+  # Web Build Job
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.3"
+          channel: "stable"
+
+      - name: Create .env file
+        run: echo "${{ secrets.ENV }}" > .env
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Web
+        run: flutter build web --release --dart-define-from-file=.env
+
+      - name: Package Web build
+        run: |
+          cd build/web
+          tar -czf ../../admin_panel_web.tar.gz .
+
+      - name: Upload Web artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-builds
+          path: admin_panel_web.tar.gz
+
+  # iOS Build Job
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.3"
+          channel: "stable"
+
+      - name: Create .env file
+        run: echo "${{ secrets.ENV }}" > .env
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Build iOS (without signing)
+        run: |
+          flutter build ios --release --no-codesign --dart-define-from-file=.env
+
+      - name: Package iOS build
+        run: |
+          cd build/ios/iphoneos
+          tar -czf ../../../admin_panel_ios.tar.gz .
+
+      - name: Upload iOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-builds
+          path: admin_panel_ios.tar.gz
+
+  # macOS Build Job
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.3"
+          channel: "stable"
+
+      - name: Create .env file
+        run: echo "${{ secrets.ENV }}" > .env
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build macOS
+        run: flutter build macos --release --dart-define-from-file=.env
+
+      - name: Package macOS build
+        run: |
+          cd build/macos/Build/Products/Release
+          tar -czf ../../../../../admin_panel_macos.tar.gz admin_panel.app
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-builds
+          path: admin_panel_macos.tar.gz
+
+  # Linux Build Job
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.3"
+          channel: "stable"
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Create .env file
+        run: echo "${{ secrets.ENV }}" > .env
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Linux
+        run: flutter build linux --release --dart-define-from-file=.env
+
+      - name: Package Linux build
+        run: |
+          cd build/linux/x64/release/bundle
+          tar -czf ../../../../../admin_panel_linux.tar.gz .
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-builds
+          path: admin_panel_linux.tar.gz
+
+  # Release Job - Depends on all build jobs
+  create-release:
+    needs:
+      [
+        build-android,
+        build-windows,
+        build-web,
+        build-ios,
+        build-macos,
+        build-linux,
+      ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            admin_panel.apk
+            app-release.apk
+            app-release.aab
             admin_panel_installer.exe
+            admin_panel_windows.zip
+            admin_panel_web.tar.gz
+            admin_panel_ios.tar.gz
+            admin_panel_macos.tar.gz
+            admin_panel_linux.tar.gz
           name: Release ${{ github.ref_name }}
+          body: |
+            ## Downloads
+
+            ### Android
+            - **APK**: `app-release.apk` - For sideloading on Android devices
+            - **AAB**: `app-release.aab` - For Google Play Store distribution
+
+            ### Windows
+            - **Installer**: `admin_panel_installer.exe` - Windows installer with shortcuts
+            - **Portable**: `admin_panel_windows.zip` - Portable Windows application
+
+            ### Web
+            - **Web App**: `admin_panel_web.tar.gz` - Deploy to web server
+
+            ### iOS
+            - **iOS Build**: `admin_panel_ios.tar.gz` - iOS build (requires code signing for distribution)
+
+            ### macOS
+            - **macOS App**: `admin_panel_macos.tar.gz` - macOS application bundle
+
+            ### Linux
+            - **Linux Build**: `admin_panel_linux.tar.gz` - Linux application bundle
           draft: false
           prerelease: false
         env:
