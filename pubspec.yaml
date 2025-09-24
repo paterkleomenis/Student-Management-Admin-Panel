@@ -8,47 +8,26 @@ environment:
   flutter: ">=3.0.0"
 
 dependencies:
+  cupertino_icons: ^1.0.8
+  easy_localization: ^3.0.7
+  excel: ^4.0.6
+  file_picker: ^8.1.4
+  fl_chart: ^0.69.0
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-
-  # Core functionality
-  cupertino_icons: ^1.0.8
-
-  # Internationalization and localization
-  easy_localization: ^3.0.7
-
-  # Data handling and file operations
-  excel: ^4.0.6
-  file_picker: ^8.1.4
-
-  # Charts and data visualization
-  fl_chart: ^0.69.0
-
-  # Navigation and routing
   go_router: ^14.6.1
-
-  # UI and styling
   google_fonts: ^6.2.1
-
-  # Internationalization and localization
   intl: ^0.20.2
-
-  # Storage and configuration
+  package_info_plus: ^8.0.0
   path_provider: ^2.0.11
-
-  # State management
+  permission_handler: ^11.3.1
   provider: ^6.1.2
-
-  # Storage and configuration
   shared_preferences: ^2.3.2
-
-  # Database and authentication
   supabase_flutter: ^2.9.1
-
-  # Data handling and file operations
   universal_html: ^2.2.4
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_lints: ^5.0.0

@@ -21,7 +21,8 @@ class DocumentService {
 
   // Get documents by student ID
   Future<List<Map<String, dynamic>>> getDocumentsByStudentId(
-      String studentId) async {
+    String studentId,
+  ) async {
     try {
       final response = await _client
           .from('student_documents')
@@ -175,7 +176,9 @@ class DocumentService {
   }
 
   // Delete document
-  Future<void> deleteDocument(String documentId) async {
+  Future<void> deleteDocument(
+    String documentId,
+  ) async {
     try {
       // First get the document to find the file path
       final document = await _client
@@ -264,7 +267,7 @@ class DocumentService {
       // Documents by day (last 30 days)
       final now = DateTime.now();
       final dailyUploads = <String, int>{};
-      for (int i = 29; i >= 0; i--) {
+      for (var i = 29; i >= 0; i--) {
         final date = now.subtract(Duration(days: i));
         final dateKey =
             '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
@@ -298,7 +301,8 @@ class DocumentService {
 
   // Get document submissions by student
   Future<List<Map<String, dynamic>>> getDocumentSubmissions(
-      String studentId) async {
+    String studentId,
+  ) async {
     try {
       final response = await _client
           .from('document_submissions')
@@ -358,8 +362,10 @@ class DocumentService {
   }
 
   // Create signed URL for temporary access
-  Future<String?> createSignedUrl(String filePath,
-      {int expiresIn = 3600}) async {
+  Future<String?> createSignedUrl(
+    String filePath, {
+    int expiresIn = 3600,
+  }) async {
     try {
       final url = await _client.storage
           .from('student-documents')
@@ -389,7 +395,9 @@ class DocumentService {
   }
 
   Future<void> bulkRejectDocuments(
-      List<String> documentIds, String reason) async {
+    List<String> documentIds,
+    String reason,
+  ) async {
     try {
       final updateData = {
         'upload_status': 'rejected',

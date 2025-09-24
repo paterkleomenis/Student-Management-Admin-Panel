@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/student.dart';
+import '../services/language_service.dart';
 
 // Cache DateFormat instances
 final _dateFormat = DateFormat('dd/MM/yyyy');
@@ -89,8 +91,8 @@ class _StudentsDataTableState extends State<StudentsDataTable>
           bValue = b.familyName.toLowerCase();
           break;
         case 2:
-          aValue = (a.email ?? '').toLowerCase();
-          bValue = (b.email ?? '').toLowerCase();
+          aValue = a.email.toLowerCase();
+          bValue = b.email.toLowerCase();
           break;
         case 3:
           aValue = (a.university ?? '').toLowerCase();
@@ -109,8 +111,8 @@ class _StudentsDataTableState extends State<StudentsDataTable>
           bValue = b.phone ?? '';
           break;
         case 7:
-          aValue = a.createdAt;
-          bValue = b.createdAt;
+          aValue = a.createdAt ?? DateTime(1970);
+          bValue = b.createdAt ?? DateTime(1970);
           break;
         default:
           aValue = a.name.toLowerCase();
@@ -124,30 +126,118 @@ class _StudentsDataTableState extends State<StudentsDataTable>
   }
 
   void _showDeleteDialog(Student student) {
-    showDialog(
+    showDialog<void>(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Delete Student'),
-        content: Text(
-          'Are you sure you want to delete ${student.name} ${student.familyName}?',
+      builder: (BuildContext context) => Consumer<LanguageService>(
+        builder: (context, langService, child) => AlertDialog(
+          title: Text(langService.getString('data_table.delete_title')),
+          content: Text(
+            langService.getString(
+              'data_table.delete_message',
+              params: {'name': '${student.name} ${student.familyName}'},
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(langService.getString('data_table.cancel_button')),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                widget.onDelete?.call(student);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: Text(langService.getString('data_table.delete_button')),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              widget.onDelete?.call(student);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
       ),
     );
   }
+
+  List<DataColumn> _buildDataColumns() => [
+        DataColumn(
+          label: Consumer<LanguageService>(
+            builder: (context, langService, child) =>
+                Text(langService.getString('data_table.name')),
+          ),
+          onSort: (columnIndex, ascending) => _sort(
+            (student) => student.name.toLowerCase(),
+            columnIndex,
+          ),
+        ),
+        DataColumn(
+          label: Consumer<LanguageService>(
+            builder: (context, langService, child) =>
+                Text(langService.getString('data_table.family_name')),
+          ),
+          onSort: (columnIndex, ascending) => _sort(
+            (student) => student.familyName.toLowerCase(),
+            columnIndex,
+          ),
+        ),
+        DataColumn(
+          label: Consumer<LanguageService>(
+            builder: (context, langService, child) =>
+                Text(langService.getString('data_table.email')),
+          ),
+          onSort: (columnIndex, ascending) => _sort(
+            (student) => student.email.toLowerCase(),
+            columnIndex,
+          ),
+        ),
+        DataColumn(
+          label: Consumer<LanguageService>(
+            builder: (context, langService, child) =>
+                Text(langService.getString('data_table.university')),
+          ),
+          onSort: (columnIndex, ascending) => _sort(
+            (student) => (student.university ?? '').toLowerCase(),
+            columnIndex,
+          ),
+        ),
+        DataColumn(
+          label: Consumer<LanguageService>(
+            builder: (context, langService, child) =>
+                Text(langService.getString('data_table.department')),
+          ),
+          onSort: (columnIndex, ascending) => _sort(
+            (student) => (student.department ?? '').toLowerCase(),
+            columnIndex,
+          ),
+        ),
+        DataColumn(
+          label: Consumer<LanguageService>(
+            builder: (context, langService, child) =>
+                Text(langService.getString('data_table.year')),
+          ),
+          onSort: (columnIndex, ascending) =>
+              _sort((student) => student.yearOfStudy ?? '', columnIndex),
+        ),
+        DataColumn(
+          label: Consumer<LanguageService>(
+            builder: (context, langService, child) =>
+                Text(langService.getString('data_table.phone')),
+          ),
+        ),
+        DataColumn(
+          label: Consumer<LanguageService>(
+            builder: (context, langService, child) =>
+                Text(langService.getString('data_table.created')),
+          ),
+          onSort: (columnIndex, ascending) => _sort(
+            (student) => student.createdAt?.toIso8601String() ?? '',
+            columnIndex,
+          ),
+        ),
+        DataColumn(
+          label: Consumer<LanguageService>(
+            builder: (context, langService, child) =>
+                Text(langService.getString('data_table.actions')),
+          ),
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -183,10 +273,12 @@ class _StudentsDataTableState extends State<StudentsDataTable>
                     ),
                   ),
                   if (widget.onRefresh != null)
-                    IconButton(
-                      onPressed: widget.onRefresh,
-                      icon: const Icon(Icons.refresh, size: 20),
-                      tooltip: 'Refresh',
+                    Consumer<LanguageService>(
+                      builder: (context, langService, child) => IconButton(
+                        onPressed: widget.onRefresh,
+                        icon: const Icon(Icons.refresh, size: 20),
+                        tooltip: langService.getString('tooltips.refresh'),
+                      ),
                     ),
                 ],
               ),
@@ -258,65 +350,17 @@ class _StudentsDataTableState extends State<StudentsDataTable>
                 dataRowMaxHeight: 48,
                 columnSpacing: 24,
                 horizontalMargin: 20,
-                columns: [
-                  DataColumn(
-                    label: const Text('Name'),
-                    onSort: (columnIndex, ascending) => _sort(
-                      (student) => student.name.toLowerCase(),
-                      columnIndex,
-                    ),
-                  ),
-                  DataColumn(
-                    label: const Text('Family Name'),
-                    onSort: (columnIndex, ascending) => _sort(
-                      (student) => student.familyName.toLowerCase(),
-                      columnIndex,
-                    ),
-                  ),
-                  DataColumn(
-                    label: const Text('Email'),
-                    onSort: (columnIndex, ascending) => _sort(
-                      (student) => student.email.toLowerCase(),
-                      columnIndex,
-                    ),
-                  ),
-                  DataColumn(
-                    label: const Text('University'),
-                    onSort: (columnIndex, ascending) => _sort(
-                      (student) => (student.university ?? '').toLowerCase(),
-                      columnIndex,
-                    ),
-                  ),
-                  DataColumn(
-                    label: const Text('Department'),
-                    onSort: (columnIndex, ascending) => _sort(
-                      (student) => (student.department ?? '').toLowerCase(),
-                      columnIndex,
-                    ),
-                  ),
-                  DataColumn(
-                    label: const Text('Year'),
-                    onSort: (columnIndex, ascending) =>
-                        _sort((student) => student.yearOfStudy ?? '', columnIndex),
-                  ),
-                  const DataColumn(label: Text('Phone')),
-                  DataColumn(
-                    label: const Text('Created'),
-                    onSort: (columnIndex, ascending) =>
-                        _sort((student) => student.createdAt?.toIso8601String() ?? '', columnIndex),
-                  ),
-                  const DataColumn(label: Text('Actions')),
-                ],
+                columns: _buildDataColumns(),
                 rows: _sortedStudents
                     .map(
                       (student) => DataRow(
-                        key: ValueKey(student.id ?? ''),
+                        key: ValueKey(student.id),
                         cells: [
-                          DataCell(Text(student.name ?? '')),
-                          DataCell(Text(student.familyName ?? '')),
+                          DataCell(Text(student.name)),
+                          DataCell(Text(student.familyName)),
                           DataCell(
                             Text(
-                              student.email ?? '',
+                              student.email,
                               style: const TextStyle(color: Colors.blue),
                             ),
                           ),
@@ -324,45 +368,69 @@ class _StudentsDataTableState extends State<StudentsDataTable>
                           DataCell(Text(student.department ?? '')),
                           DataCell(Text(student.yearOfStudy ?? '')),
                           DataCell(Text(student.phone ?? '')),
-                          DataCell(Text(_dateFormat.format(student.createdAt))),
+                          DataCell(
+                            Consumer<LanguageService>(
+                              builder: (context, langService, child) => Text(
+                                student.createdAt != null
+                                    ? _dateFormat.format(student.createdAt!)
+                                    : langService
+                                        .getString('common.not_provided'),
+                              ),
+                            ),
+                          ),
                           DataCell(
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 if (widget.onView != null)
-                                  IconButton(
-                                    onPressed: () => widget.onView!(student),
-                                    icon:
-                                        const Icon(Icons.visibility, size: 16),
-                                    tooltip: 'students.actions.view'.tr(),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 28,
-                                      minHeight: 28,
+                                  Consumer<LanguageService>(
+                                    builder: (context, langService, child) =>
+                                        IconButton(
+                                      onPressed: () => widget.onView!(student),
+                                      icon: const Icon(
+                                        Icons.visibility,
+                                        size: 16,
+                                      ),
+                                      tooltip: langService
+                                          .getString('students.actions.view'),
+                                      constraints: const BoxConstraints(
+                                        minWidth: 28,
+                                        minHeight: 28,
+                                      ),
+                                      padding: EdgeInsets.zero,
                                     ),
-                                    padding: EdgeInsets.zero,
                                   ),
                                 if (widget.onEdit != null)
-                                  IconButton(
-                                    onPressed: () => widget.onEdit!(student),
-                                    icon: const Icon(Icons.edit, size: 16),
-                                    tooltip: 'students.actions.edit'.tr(),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 28,
-                                      minHeight: 28,
+                                  Consumer<LanguageService>(
+                                    builder: (context, langService, child) =>
+                                        IconButton(
+                                      onPressed: () => widget.onEdit!(student),
+                                      icon: const Icon(Icons.edit, size: 16),
+                                      tooltip: langService
+                                          .getString('students.actions.edit'),
+                                      constraints: const BoxConstraints(
+                                        minWidth: 28,
+                                        minHeight: 28,
+                                      ),
+                                      padding: EdgeInsets.zero,
                                     ),
-                                    padding: EdgeInsets.zero,
                                   ),
                                 if (widget.onDelete != null)
-                                  IconButton(
-                                    onPressed: () => _showDeleteDialog(student),
-                                    icon: const Icon(Icons.delete, size: 16),
-                                    color: Colors.red,
-                                    tooltip: 'students.actions.delete'.tr(),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 28,
-                                      minHeight: 28,
+                                  Consumer<LanguageService>(
+                                    builder: (context, langService, child) =>
+                                        IconButton(
+                                      onPressed: () =>
+                                          _showDeleteDialog(student),
+                                      icon: const Icon(Icons.delete, size: 16),
+                                      color: Colors.red,
+                                      tooltip: langService
+                                          .getString('students.actions.delete'),
+                                      constraints: const BoxConstraints(
+                                        minWidth: 28,
+                                        minHeight: 28,
+                                      ),
+                                      padding: EdgeInsets.zero,
                                     ),
-                                    padding: EdgeInsets.zero,
                                   ),
                               ],
                             ),
@@ -407,7 +475,7 @@ class _StudentsDataTableState extends State<StudentsDataTable>
       itemBuilder: (context, index) {
         final student = _sortedStudents[index];
         return StudentMobileCard(
-          key: ValueKey(student.id ?? ""),
+          key: ValueKey(student.id),
           student: student,
           onView: widget.onView,
           onEdit: widget.onEdit,
@@ -469,7 +537,7 @@ class StudentMobileCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
-            student.email ?? '',
+            student.email,
             style: _subtitleStyle,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -478,32 +546,38 @@ class StudentMobileCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (onView != null)
-                IconButton(
-                  onPressed: () => onView!(student),
-                  icon: const Icon(Icons.visibility, size: 16),
-                  tooltip: 'students.actions.view'.tr(),
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
-                  padding: EdgeInsets.zero,
+                Consumer<LanguageService>(
+                  builder: (context, langService, child) => IconButton(
+                    onPressed: () => onView!(student),
+                    icon: const Icon(Icons.visibility, size: 16),
+                    tooltip: langService.getString('students.actions.view'),
+                    constraints:
+                        const BoxConstraints(minWidth: 28, minHeight: 28),
+                    padding: EdgeInsets.zero,
+                  ),
                 ),
               if (onEdit != null)
-                IconButton(
-                  onPressed: () => onEdit!(student),
-                  icon: const Icon(Icons.edit, size: 16),
-                  tooltip: 'students.actions.edit'.tr(),
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
-                  padding: EdgeInsets.zero,
+                Consumer<LanguageService>(
+                  builder: (context, langService, child) => IconButton(
+                    onPressed: () => onEdit!(student),
+                    icon: const Icon(Icons.edit, size: 16),
+                    tooltip: langService.getString('students.actions.edit'),
+                    constraints:
+                        const BoxConstraints(minWidth: 28, minHeight: 28),
+                    padding: EdgeInsets.zero,
+                  ),
                 ),
               if (onDelete != null)
-                IconButton(
-                  onPressed: onDelete,
-                  icon: const Icon(Icons.delete, size: 16),
-                  color: Colors.red,
-                  tooltip: 'students.actions.delete'.tr(),
-                  constraints:
-                      const BoxConstraints(minWidth: 28, minHeight: 28),
-                  padding: EdgeInsets.zero,
+                Consumer<LanguageService>(
+                  builder: (context, langService, child) => IconButton(
+                    onPressed: onDelete,
+                    icon: const Icon(Icons.delete, size: 16),
+                    color: Colors.red,
+                    tooltip: langService.getString('students.actions.delete'),
+                    constraints:
+                        const BoxConstraints(minWidth: 28, minHeight: 28),
+                    padding: EdgeInsets.zero,
+                  ),
                 ),
             ],
           ),
@@ -512,19 +586,27 @@ class StudentMobileCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Column(
                 children: [
-                  _buildDetailRow('Phone', student.phone ?? ""),
-                  _buildDetailRow("Father's Name", student.fatherName ?? ""),
-                  _buildDetailRow("Mother's Name", student.motherName ?? ""),
-                  _buildDetailRow(
-                    'Birth Date',
-                    _dateFormat.format(student.birthDate),
+                  _buildDetailRow('Phone', student.phone ?? ''),
+                  _buildDetailRow("Father's Name", student.fatherName ?? ''),
+                  _buildDetailRow("Mother's Name", student.motherName ?? ''),
+                  Consumer<LanguageService>(
+                    builder: (context, langService, child) => _buildDetailRow(
+                      'Birth Date',
+                      student.birthDate != null
+                          ? _dateFormat.format(student.birthDate!)
+                          : langService.getString('common.not_provided'),
+                    ),
                   ),
-                  _buildDetailRow('University', student.university ?? ""),
-                  _buildDetailRow('Department', student.department ?? ""),
-                  _buildDetailRow('Year of Study', student.yearOfStudy ?? ""),
-                  _buildDetailRow(
-                    'Created',
-                    _dateTimeFormat.format(student.createdAt),
+                  _buildDetailRow('University', student.university ?? ''),
+                  _buildDetailRow('Department', student.department ?? ''),
+                  _buildDetailRow('Year of Study', student.yearOfStudy ?? ''),
+                  Consumer<LanguageService>(
+                    builder: (context, langService, child) => _buildDetailRow(
+                      'Created',
+                      student.createdAt != null
+                          ? _dateTimeFormat.format(student.createdAt!)
+                          : langService.getString('common.not_provided'),
+                    ),
                   ),
                 ],
               ),

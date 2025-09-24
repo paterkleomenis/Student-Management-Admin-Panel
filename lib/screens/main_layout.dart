@@ -67,13 +67,13 @@ class _MainLayoutState extends State<MainLayout> {
       ),
     );
 
-    if (confirmed == true) {
+    if (confirmed ?? false) {
+      if (!mounted) return;
+      final authService = Provider.of<AuthService>(context, listen: false);
       try {
-        final authService = Provider.of<AuthService>(context, listen: false);
         await authService.signOut();
-        if (mounted) {
-          context.go('/login');
-        }
+        if (!mounted) return;
+        context.go('/login');
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

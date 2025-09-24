@@ -42,7 +42,7 @@ class StudentDetailDialog extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          student.fullName ?? "",
+                          student.fullName,
                           style: GoogleFonts.poppins(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -87,7 +87,7 @@ class StudentDetailDialog extends StatelessWidget {
                           [
                             _buildInfoRow(
                               langService.getString('student_detail.full_name'),
-                              student.fullName ?? "",
+                              student.fullName,
                               langService,
                             ),
                             _buildInfoRow(
@@ -105,14 +105,17 @@ class StudentDetailDialog extends StatelessWidget {
                             _buildInfoRow(
                               langService
                                   .getString('student_detail.birth_date'),
-                              DateFormat('dd/MM/yyyy')
-                                  .format(student.birthDate),
+                              student.birthDate != null
+                                  ? DateFormat('dd/MM/yyyy')
+                                      .format(student.birthDate!)
+                                  : langService
+                                      .getString('common.not_provided'),
                               langService,
                             ),
                             _buildInfoRow(
                               langService
                                   .getString('student_detail.birth_place'),
-                              student.birthPlace ?? '',
+                              student.birthPlace,
                               langService,
                             ),
                           ],
@@ -127,7 +130,7 @@ class StudentDetailDialog extends StatelessWidget {
                               langService.getString(
                                 'student_detail.id_card_number',
                               ),
-                              student.idCardNumber ?? "",
+                              student.idCardNumber ?? '',
                               langService,
                             ),
                             _buildInfoRow(
@@ -191,7 +194,7 @@ class StudentDetailDialog extends StatelessWidget {
                           [
                             _buildInfoRow(
                               langService.getString('student_detail.email'),
-                              student.email ?? "",
+                              student.email,
                               langService,
                               isEmail: true,
                             ),
@@ -267,9 +270,12 @@ class StudentDetailDialog extends StatelessWidget {
                             _buildInfoRow(
                               langService
                                   .getString('student_detail.created_at'),
-                              DateFormat(
-                                'dd/MM/yyyy HH:mm',
-                              ).format(student.createdAt),
+                              student.createdAt != null
+                                  ? DateFormat(
+                                      'dd/MM/yyyy HH:mm',
+                                    ).format(student.createdAt!)
+                                  : langService
+                                      .getString('common.not_provided'),
                               langService,
                             ),
                           ],
@@ -363,7 +369,9 @@ class StudentDetailDialog extends StatelessWidget {
               children: [
                 Expanded(
                   child: SelectableText(
-                    value.isNotEmpty ? value : 'Not provided',
+                    value.isNotEmpty
+                        ? value
+                        : langService.getString('common.not_provided'),
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: value.isNotEmpty
@@ -375,29 +383,35 @@ class StudentDetailDialog extends StatelessWidget {
                   ),
                 ),
                 if (isEmail && value.isNotEmpty)
-                  IconButton(
-                    onPressed: () {
-                      // Could implement email functionality here
-                    },
-                    icon: Icon(Icons.email, size: 16, color: Colors.blue[600]),
-                    tooltip: 'Send Email',
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
+                  Consumer<LanguageService>(
+                    builder: (context, langService, child) => IconButton(
+                      onPressed: () {
+                        // Could implement email functionality here
+                      },
+                      icon:
+                          Icon(Icons.email, size: 16, color: Colors.blue[600]),
+                      tooltip: langService.getString('tooltips.send_email'),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
                     ),
                   ),
                 if (isPhone && value.isNotEmpty)
-                  IconButton(
-                    onPressed: () {
-                      // Could implement call functionality here
-                    },
-                    icon: Icon(Icons.phone, size: 16, color: Colors.green[600]),
-                    tooltip: 'Call',
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
+                  Consumer<LanguageService>(
+                    builder: (context, langService, child) => IconButton(
+                      onPressed: () {
+                        // Could implement call functionality here
+                      },
+                      icon:
+                          Icon(Icons.phone, size: 16, color: Colors.green[600]),
+                      tooltip: langService.getString('tooltips.call'),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
                     ),
                   ),
               ],

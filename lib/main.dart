@@ -6,10 +6,12 @@ import 'package:provider/provider.dart';
 
 import 'config/app_config.dart';
 import 'db_client.dart';
+import 'providers/receipt_provider.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/error_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_layout.dart';
+import 'screens/receipts_screen.dart';
 import 'screens/reports_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/student_detail_screen.dart';
@@ -60,9 +62,14 @@ void main() async {
               children: [
                 const Icon(Icons.error, size: 64, color: Colors.red),
                 const SizedBox(height: 16),
-                const Text(
-                  'Configuration Error',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                Consumer<LanguageService>(
+                  builder: (context, langService, child) => Text(
+                    langService.getString('errors.configuration_error'),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -71,7 +78,12 @@ void main() async {
                   style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 24),
-                const ElevatedButton(onPressed: main, child: Text('Retry')),
+                Consumer<LanguageService>(
+                  builder: (context, langService, child) => ElevatedButton(
+                    onPressed: main,
+                    child: Text(langService.getString('common.retry')),
+                  ),
+                ),
               ],
             ),
           ),
@@ -96,6 +108,9 @@ class AdminPanelApp extends StatelessWidget {
         providers: [
           Provider<AuthService>.value(value: authService),
           ChangeNotifierProvider<LanguageService>.value(value: languageService),
+          ChangeNotifierProvider<ReceiptProvider>(
+            create: (_) => ReceiptProvider(),
+          ),
         ],
         child: Consumer<LanguageService>(
           builder: (context, langService, child) => MaterialApp.router(
@@ -181,7 +196,9 @@ GoRouter _createRouter(AuthService authService) => GoRouter(
       },
       routes: [
         GoRoute(
-            path: '/login', builder: (context, state) => const LoginScreen()),
+          path: '/login',
+          builder: (context, state) => const LoginScreen(),
+        ),
         ShellRoute(
           builder: (context, state, child) => MainLayout(child: child),
           routes: [
@@ -212,6 +229,10 @@ GoRouter _createRouter(AuthService authService) => GoRouter(
                   },
                 ),
               ],
+            ),
+            GoRoute(
+              path: '/receipts',
+              builder: (context, state) => const ReceiptsScreen(),
             ),
             GoRoute(
               path: '/reports',

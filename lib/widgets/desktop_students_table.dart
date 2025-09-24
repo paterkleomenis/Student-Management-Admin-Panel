@@ -305,36 +305,45 @@ class _DesktopStudentsTableState extends State<DesktopStudentsTable> {
     LanguageService langService,
   ) =>
       [
-        _buildDataCell(student.id ?? "", 95, fontWeight: FontWeight.w500),
-        _buildDataCell(student.name ?? "", 115, fontWeight: FontWeight.w500),
-        _buildDataCell(student.familyName ?? "", 115,
-            fontWeight: FontWeight.w500),
-        _buildDataCell(student.fatherName ?? "", 115),
-        _buildDataCell(student.motherName ?? "", 115),
-        _buildDataCell(langService.formatDisplayDate(student.birthDate), 105),
-        _buildDataCell(student.birthPlace ?? "", 125),
-        _buildDataCell(student.idCardNumber ?? "", 115),
-        _buildDataCell(student.issuingAuthority ?? "", 135),
-        _buildDataCell(student.university ?? "", 145),
-        _buildDataCell(student.department ?? "", 125),
-        _buildDataCell(student.yearOfStudy ?? "", 95),
+        _buildDataCell(student.id, 95, fontWeight: FontWeight.w500),
+        _buildDataCell(student.name, 115, fontWeight: FontWeight.w500),
+        _buildDataCell(student.familyName, 115, fontWeight: FontWeight.w500),
+        _buildDataCell(student.fatherName ?? '', 115),
+        _buildDataCell(student.motherName ?? '', 115),
+        _buildDataCell(
+          student.birthDate != null
+              ? langService.formatDisplayDate(student.birthDate!)
+              : langService.getString('common.not_provided'),
+          105,
+        ),
+        _buildDataCell(student.birthPlace, 125),
+        _buildDataCell(student.idCardNumber ?? '', 115),
+        _buildDataCell(student.issuingAuthority ?? '', 135),
+        _buildDataCell(student.university ?? '', 145),
+        _buildDataCell(student.department ?? '', 125),
+        _buildDataCell(student.yearOfStudy ?? '', 95),
         _buildDataCell(
           student.hasOtherDegree
               ? langService.getString('student_detail.yes')
               : langService.getString('student_detail.no'),
           115,
         ),
-        _buildDataCell(student.email ?? "", 175, color: Colors.blue),
-        _buildDataCell(student.phone ?? "", 125),
-        _buildDataCell(student.taxNumber ?? "", 115),
-        _buildDataCell(student.fatherJob ?? "", 135),
-        _buildDataCell(student.motherJob ?? "", 135),
-        _buildDataCell(student.parentAddress ?? "", 195),
-        _buildDataCell(student.parentCity ?? "", 115),
-        _buildDataCell(student.parentRegion ?? "", 125),
-        _buildDataCell(student.parentPostal ?? "", 95),
-        _buildDataCell(student.parentCountry ?? "", 115),
-        _buildDataCell(langService.formatDisplayDate(student.createdAt), 115),
+        _buildDataCell(student.email, 175, color: Colors.blue),
+        _buildDataCell(student.phone ?? '', 125),
+        _buildDataCell(student.taxNumber ?? '', 115),
+        _buildDataCell(student.fatherJob ?? '', 135),
+        _buildDataCell(student.motherJob ?? '', 135),
+        _buildDataCell(student.parentAddress ?? '', 195),
+        _buildDataCell(student.parentCity ?? '', 115),
+        _buildDataCell(student.parentRegion ?? '', 125),
+        _buildDataCell(student.parentPostal ?? '', 95),
+        _buildDataCell(student.parentCountry ?? '', 115),
+        _buildDataCell(
+          student.createdAt != null
+              ? langService.formatDisplayDate(student.createdAt!)
+              : 'N/A',
+          110,
+        ),
       ];
 
   Widget _buildDataCell(

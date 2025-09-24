@@ -142,6 +142,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
     try {
       final allStudents = await _studentService.getAllStudentsForExport();
 
+      if (!mounted) return;
       final langService = Provider.of<LanguageService>(context, listen: false);
 
       // Prepare localized headers
@@ -246,7 +247,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
   Future<void> _deleteStudent(Student student) async {
     try {
-      await _studentService.deleteStudent(student.id ?? "");
+      await _studentService.deleteStudent(student.id);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -578,7 +579,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                             Column(
                               children: [
                                 DropdownButtonFormField<String>(
-                                  value: _selectedUniversity,
+                                  initialValue: _selectedUniversity,
                                   decoration: InputDecoration(
                                     labelText: context
                                         .read<LanguageService>()
@@ -622,7 +623,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                                       0.75,
                                 ),
                                 DropdownButtonFormField<String>(
-                                  value: _selectedDepartment,
+                                  initialValue: _selectedDepartment,
                                   decoration: InputDecoration(
                                     labelText: context
                                         .read<LanguageService>()
@@ -665,7 +666,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                                       0.75,
                                 ),
                                 DropdownButtonFormField<String>(
-                                  value: _selectedYear,
+                                  initialValue: _selectedYear,
                                   decoration: InputDecoration(
                                     labelText: context
                                         .read<LanguageService>()
@@ -712,7 +713,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                               children: [
                                 Expanded(
                                   child: DropdownButtonFormField<String>(
-                                    value: _selectedUniversity,
+                                    initialValue: _selectedUniversity,
                                     decoration: InputDecoration(
                                       labelText: context
                                           .read<LanguageService>()
@@ -752,7 +753,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: DropdownButtonFormField<String>(
-                                    value: _selectedDepartment,
+                                    initialValue: _selectedDepartment,
                                     decoration: InputDecoration(
                                       labelText: context
                                           .read<LanguageService>()
@@ -792,7 +793,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: DropdownButtonFormField<String>(
-                                    value: _selectedYear,
+                                    initialValue: _selectedYear,
                                     decoration: InputDecoration(
                                       labelText: context
                                           .read<LanguageService>()

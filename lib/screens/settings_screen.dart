@@ -1,13 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import '../services/language_service.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
   @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  String _version = '1.0.0';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _version = packageInfo.version;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) => Consumer<LanguageService>(
-      builder: (context, langService, child) => Scaffold(
+        builder: (context, langService, child) => Scaffold(
           body: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -157,10 +178,9 @@ class SettingsScreen extends StatelessWidget {
                           leading: const Icon(Icons.admin_panel_settings),
                           title: Text(langService.appTitle),
                           subtitle: Text(
-                            '${langService.getString('settings.version')} 1.0.0',
+                            '${langService.getString('settings.version')} $_version',
                           ),
                         ),
-
                       ],
                     ),
                   ),
@@ -169,5 +189,5 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
         ),
-    );
+      );
 }

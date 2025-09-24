@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LanguageService extends ChangeNotifier {
   static const String _languageKey = 'selected_language';
 
-  Locale _currentLocale = const Locale('en');
+  Locale _currentLocale = const Locale('el');
   Map<String, dynamic> _localizedStrings = {};
 
   // Supported locales
@@ -38,17 +38,19 @@ class LanguageService extends ChangeNotifier {
       if (savedLanguage != null) {
         _currentLocale = Locale(savedLanguage);
       } else {
-        // Default to system locale if supported, otherwise English
+        // Default to system locale if supported, otherwise Greek
         final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
         if (supportedLocales.any(
           (locale) => locale.languageCode == systemLocale.languageCode,
         )) {
           _currentLocale = Locale(systemLocale.languageCode);
+        } else {
+          _currentLocale = const Locale('el');
         }
       }
     } catch (e) {
-      // If any error occurs, default to English
-      _currentLocale = const Locale('en');
+      // If any error occurs, default to Greek
+      _currentLocale = const Locale('el');
     }
   }
 
@@ -144,6 +146,7 @@ class LanguageService extends ChangeNotifier {
   // Navigation translations
   String get dashboard => getString('navigation.dashboard');
   String get students => getString('navigation.students');
+  String get receipts => getString('navigation.receipts');
   String get reports => getString('navigation.reports');
   String get settings => getString('navigation.settings');
 
@@ -273,7 +276,10 @@ class LanguageService extends ChangeNotifier {
   // Get all available language options for UI
   List<LanguageOption> get availableLanguages => [
         const LanguageOption(
-            code: 'en', name: 'English', nativeName: 'English'),
+          code: 'en',
+          name: 'English',
+          nativeName: 'English',
+        ),
         const LanguageOption(code: 'el', name: 'Greek', nativeName: 'Ελληνικά'),
       ];
 }

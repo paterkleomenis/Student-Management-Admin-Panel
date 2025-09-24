@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../db_client.dart';
@@ -14,7 +16,6 @@ class StudentService {
     String? university,
     String? department,
     String? yearOfStudy,
-    String? applicationStatus,
   }) async {
     try {
       var query = _client.from('dormitory_students').select();
@@ -42,16 +43,25 @@ class StudentService {
         query = query.eq('year_of_study', yearOfStudy);
       }
 
-      if (applicationStatus != null && applicationStatus.isNotEmpty) {
-        query = query.eq('application_status', applicationStatus);
-      }
-
       final response = await query
           .range(offset, offset + limit - 1)
           .order('created_at', ascending: false);
 
-      return (response as List).map((json) => Student.fromJson(json)).toList();
+      try {
+        return (response as List).map((json) {
+          try {
+            return Student.fromJson(json);
+          } catch (parseError) {
+            // Error parsing student data
+            rethrow;
+          }
+        }).toList();
+      } catch (mappingError) {
+        // Error mapping student list
+        rethrow;
+      }
     } catch (e) {
+      // Error in getStudents
       throw Exception('Failed to fetch students: $e');
     }
   }
@@ -64,8 +74,21 @@ class StudentService {
           .select()
           .order('created_at', ascending: false);
 
-      return (response as List).map((json) => Student.fromJson(json)).toList();
+      try {
+        return (response as List).map((json) {
+          try {
+            return Student.fromJson(json);
+          } catch (parseError) {
+            // Error parsing student data in getAllStudentsForExport
+            rethrow;
+          }
+        }).toList();
+      } catch (mappingError) {
+        // Error mapping student list in getAllStudentsForExport
+        rethrow;
+      }
     } catch (e) {
+      // Error in getAllStudentsForExport
       throw Exception('Failed to fetch all students: $e');
     }
   }
@@ -79,8 +102,14 @@ class StudentService {
           .eq('id', id)
           .single();
 
-      return Student.fromJson(response);
+      try {
+        return Student.fromJson(response);
+      } catch (parseError) {
+        // Error parsing student data in getStudentById
+        return null;
+      }
     } catch (e) {
+      // Error in getStudentById
       return null;
     }
   }
@@ -124,31 +153,118 @@ class StudentService {
   // Create new student
   Future<Student> createStudent(Student student) async {
     try {
-      final response = await _client
-          .from('dormitory_students')
-          .insert(student.toJson())
-          .select()
-          .single();
+      // First create a user in auth.users table
+      final authResponse = await _client.auth.admin.createUser(
+        AdminUserAttributes(
+          email: student.email,
+          emailConfirm: true,
+          userMetadata: {
+            'name': student.name,
+            'family_name': student.familyName,
+            'role': 'student',
+          },
+        ),
+      );
 
-      return Student.fromJson(response);
+      if (authResponse.user == null) {
+        throw Exception('Failed to create auth user');
+      }
+
+      // Use the auth user ID as the student ID
+      final studentData = student.toJson();
+      studentData['id'] = authResponse.user!.id;
+
+      try {
+        final response = await _client
+            .from('dormitory_students')
+            .insert(studentData)
+            .select()
+            .single();
+
+        return Student.fromJson(response);
+      } catch (studentError) {
+        // If student creation fails, clean up the auth user
+        try {
+          await _client.auth.admin.deleteUser(authResponse.user!.id);
+        } catch (cleanupError) {
+          // Log cleanup error but throw original error
+        }
+        throw Exception('Failed to create student: $studentError');
+      }
     } catch (e) {
       throw Exception('Failed to create student: $e');
     }
   }
 
-  // Create new student from data (without ID, let database generate it)
+  // Create new student from data (with auth user integration)
   Future<Student> createStudentFromData(
-      Map<String, dynamic> studentData) async {
-    try {
-      final response = await _client
-          .from('dormitory_students')
-          .insert(studentData)
-          .select()
-          .single();
+    Map<String, dynamic> studentData,
+  ) async {
+    // Store admin session data before any auth operations
+    final adminSession = _client.auth.currentSession;
+    final adminUserId = adminSession?.user.id;
 
-      return Student.fromJson(response);
+    // Get the actual session data and stringify it
+    String? sessionBackup;
+    if (adminSession != null) {
+      sessionBackup = jsonEncode(adminSession.toJson());
+    }
+
+    try {
+      // First create a user in auth.users table using regular sign up
+      final authResponse = await _client.auth.signUp(
+        email: studentData['email'] as String,
+        password: studentData['password'] as String,
+        data: {
+          'full_name': '${studentData['name']} ${studentData['family_name']}',
+        },
+      );
+
+      if (authResponse.user == null) {
+        throw Exception('Failed to create auth user');
+      }
+
+      // Use the auth user ID as the student ID
+      studentData['id'] = authResponse.user!.id;
+
+      // Remove password before database insertion (it's only for auth)
+      studentData.remove('password');
+
+      try {
+        final response = await _client
+            .from('dormitory_students')
+            .insert(studentData)
+            .select()
+            .single();
+
+        return Student.fromJson(response);
+      } catch (studentError) {
+        // If student creation fails, clean up the auth user
+        try {
+          await _client.auth.admin.deleteUser(authResponse.user!.id);
+        } catch (cleanupError) {
+          // Log cleanup error but throw original error
+        }
+        throw Exception('Failed to create student: $studentError');
+      }
     } catch (e) {
       throw Exception('Failed to create student: $e');
+    } finally {
+      // Check if admin got logged out and restore session if needed
+      final currentUser = _client.auth.currentUser;
+      final currentUserId = currentUser?.id;
+
+      // If no user or different user, admin was logged out - restore session
+      if (sessionBackup != null &&
+          (currentUserId == null || currentUserId != adminUserId)) {
+        try {
+          // Restore the admin session using the session backup
+          await _client.auth.recoverSession(sessionBackup);
+        } catch (restoreError) {
+          // If restore fails completely, admin will need to re-login
+          // Session restore failed silently
+        }
+      }
     }
   }
 
@@ -158,7 +274,7 @@ class StudentService {
       final response = await _client
           .from('dormitory_students')
           .update(student.toJson())
-          .eq('id', student.id ?? "")
+          .eq('id', student.id)
           .select()
           .single();
 
@@ -168,11 +284,10 @@ class StudentService {
     }
   }
 
-  // Update student application status
-
   // Delete student
   Future<void> deleteStudent(String id) async {
     try {
+      // Delete the student record (this will also delete the auth user due to CASCADE)
       await _client.from('dormitory_students').delete().eq('id', id);
     } catch (e) {
       throw Exception('Failed to delete student: $e');
@@ -185,7 +300,6 @@ class StudentService {
     String? university,
     String? department,
     String? yearOfStudy,
-    String? applicationStatus,
   }) async {
     try {
       var query = _client.from('dormitory_students').select('id');
@@ -211,10 +325,6 @@ class StudentService {
 
       if (yearOfStudy != null && yearOfStudy.isNotEmpty) {
         query = query.eq('year_of_study', yearOfStudy);
-      }
-
-      if (applicationStatus != null && applicationStatus.isNotEmpty) {
-        query = query.eq('application_status', applicationStatus);
       }
 
       final response = await query;
@@ -330,20 +440,25 @@ class StudentService {
       // Applications by month (last 12 months)
       final now = DateTime.now();
       final monthlyApplications = <String, int>{};
-      for (int i = 11; i >= 0; i--) {
-        final month = DateTime(now.year, now.month - i, 1);
+      for (var i = 11; i >= 0; i--) {
+        final month = DateTime(now.year, now.month - i);
         final monthKey =
             '${month.year}-${month.month.toString().padLeft(2, '0')}';
         monthlyApplications[monthKey] = 0;
       }
 
       for (final row in data) {
-        final createdAt = DateTime.parse(row['created_at'] as String);
-        final monthKey =
-            '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}';
-        if (monthlyApplications.containsKey(monthKey)) {
-          monthlyApplications[monthKey] =
-              (monthlyApplications[monthKey] ?? 0) + 1;
+        final createdAtStr = row['created_at'] as String?;
+        if (createdAtStr != null) {
+          final createdAt = DateTime.tryParse(createdAtStr);
+          if (createdAt != null) {
+            final monthKey =
+                '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}';
+            if (monthlyApplications.containsKey(monthKey)) {
+              monthlyApplications[monthKey] =
+                  (monthlyApplications[monthKey] ?? 0) + 1;
+            }
+          }
         }
       }
 
@@ -362,66 +477,6 @@ class StudentService {
         'yearCounts': <String, int>{},
         'monthlyApplications': <String, int>{},
       };
-    }
-  }
-
-  // Get students with incomplete required documents
-  Future<List<Map<String, dynamic>>> getIncompleteApplications() async {
-    try {
-      // Get required categories
-      final requiredCategoriesResponse = await _client
-          .from('document_categories')
-          .select('id, category_key, name_en')
-          .eq('is_required', true);
-
-      final requiredCategories = requiredCategoriesResponse as List;
-      final requiredCategoryIds =
-          requiredCategories.map((cat) => cat['id'] as int).toList();
-
-      // Get all students with submitted status
-      final studentsResponse = await _client
-          .from('dormitory_students')
-          .select('id, name, family_name, email, application_status')
-          .eq('application_status', 'submitted');
-
-      final students = studentsResponse as List;
-      final incompleteStudents = <Map<String, dynamic>>[];
-
-      for (final student in students) {
-        final studentId = student['id'] as String;
-
-        // Get student's uploaded documents
-        final documentsResponse = await _client
-            .from('student_documents')
-            .select('category_id')
-            .eq('student_id', studentId);
-
-        final uploadedCategoryIds = (documentsResponse as List)
-            .map((doc) => doc['category_id'] as int)
-            .toSet();
-
-        // Check for missing required documents
-        final missingCategories = requiredCategoryIds
-            .where((catId) => !uploadedCategoryIds.contains(catId))
-            .toList();
-
-        if (missingCategories.isNotEmpty) {
-          final missingCategoryNames = requiredCategories
-              .where((cat) => missingCategories.contains(cat['id']))
-              .map((cat) => cat['name_en'] as String)
-              .toList();
-
-          incompleteStudents.add({
-            ...student,
-            'missingDocuments': missingCategoryNames,
-            'missingCount': missingCategories.length,
-          });
-        }
-      }
-
-      return incompleteStudents;
-    } catch (e) {
-      return [];
     }
   }
 }

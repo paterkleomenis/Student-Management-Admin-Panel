@@ -6,13 +6,12 @@ class Student {
     required this.id,
     required this.name,
     required this.familyName,
-    required this.birthDate,
-    required this.idCardNumber,
     required this.email,
-    required this.createdAt,
+    required this.birthPlace,
+    this.birthDate,
+    this.idCardNumber,
     this.fatherName,
     this.motherName,
-    this.birthPlace,
     this.issuingAuthority,
     this.phone,
     this.taxNumber,
@@ -27,17 +26,27 @@ class Student {
     this.parentRegion,
     this.parentPostal,
     this.parentCountry,
+    this.parentPhone,
+    this.consentDate,
+    this.termsAccepted = false,
+    this.privacyPolicyAccepted = false,
+    this.dataProcessingConsent = false,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory Student.fromJson(Map<String, dynamic> json) => Student(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        familyName: json['family_name'] as String,
+        id: json['id'] as String? ?? '',
+        name: json['name'] as String? ?? '',
+        familyName: json['family_name'] as String? ?? '',
+        email: json['email'] as String? ?? '',
         fatherName: json['father_name'] as String?,
         motherName: json['mother_name'] as String?,
-        birthDate: DateTime.parse(json['birth_date'] as String),
-        birthPlace: json['birth_place'] as String?,
-        idCardNumber: json['id_card_number'] as String,
+        birthDate: json['birth_date'] != null
+            ? DateTime.tryParse(json['birth_date'].toString())
+            : null,
+        birthPlace: json['birth_place']?.toString() ?? '',
+        idCardNumber: json['id_card_number'] as String?,
         issuingAuthority: json['issuing_authority'] as String?,
         phone: json['phone'] as String?,
         taxNumber: json['tax_number'] as String?,
@@ -45,7 +54,6 @@ class Student {
         department: json['department'] as String?,
         yearOfStudy: json['year_of_study']?.toString(),
         hasOtherDegree: json['has_other_degree'] as bool? ?? false,
-        email: json['email'] as String? ?? '',
         fatherJob: json['father_job'] as String?,
         motherJob: json['mother_job'] as String?,
         parentAddress: json['parent_address'] as String?,
@@ -53,9 +61,21 @@ class Student {
         parentRegion: json['parent_region'] as String?,
         parentPostal: json['parent_postal'] as String?,
         parentCountry: json['parent_country'] as String?,
+        parentPhone: json['parent_phone'] as String?,
+        consentDate: json['consent_date'] != null
+            ? DateTime.tryParse(json['consent_date'] as String)
+            : null,
+        termsAccepted: json['terms_accepted'] as bool? ?? false,
+        privacyPolicyAccepted:
+            json['privacy_policy_accepted'] as bool? ?? false,
+        dataProcessingConsent:
+            json['data_processing_consent'] as bool? ?? false,
         createdAt: json['created_at'] != null
-            ? DateTime.parse(json['created_at'] as String)
-            : DateTime.now(),
+            ? DateTime.tryParse(json['created_at'] as String)
+            : null,
+        updatedAt: json['updated_at'] != null
+            ? DateTime.tryParse(json['updated_at'] as String)
+            : null,
       );
 
   final String id;
@@ -63,9 +83,9 @@ class Student {
   final String familyName;
   final String? fatherName;
   final String? motherName;
-  final DateTime birthDate;
-  final String? birthPlace;
-  final String idCardNumber;
+  final DateTime? birthDate;
+  final String birthPlace;
+  final String? idCardNumber;
   final String? issuingAuthority;
   final String? phone;
   final String? taxNumber;
@@ -81,8 +101,13 @@ class Student {
   final String? parentRegion;
   final String? parentPostal;
   final String? parentCountry;
-
-  final DateTime createdAt;
+  final String? parentPhone;
+  final DateTime? consentDate;
+  final bool termsAccepted;
+  final bool privacyPolicyAccepted;
+  final bool dataProcessingConsent;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   @override
   bool operator ==(Object other) =>
@@ -108,7 +133,7 @@ class Student {
         'family_name': familyName,
         'father_name': fatherName,
         'mother_name': motherName,
-        'birth_date': birthDate.toIso8601String().split('T')[0],
+        'birth_date': birthDate?.toIso8601String().split('T')[0],
         'birth_place': birthPlace,
         'id_card_number': idCardNumber,
         'issuing_authority': issuingAuthority,
@@ -126,7 +151,13 @@ class Student {
         'parent_region': parentRegion,
         'parent_postal': parentPostal,
         'parent_country': parentCountry,
-        'created_at': createdAt.toIso8601String(),
+        'parent_phone': parentPhone,
+        'consent_date': consentDate?.toIso8601String(),
+        'terms_accepted': termsAccepted,
+        'privacy_policy_accepted': privacyPolicyAccepted,
+        'data_processing_consent': dataProcessingConsent,
+        'created_at': createdAt?.toIso8601String(),
+        'updated_at': updatedAt?.toIso8601String(),
       };
 
   Map<String, dynamic> toExcelMap({String? yesText, String? noText}) => {
@@ -135,9 +166,9 @@ class Student {
         'Family Name': familyName,
         'Father Name': fatherName ?? '',
         'Mother Name': motherName ?? '',
-        'Birth Date': birthDate.toIso8601String().split('T')[0],
-        'Birth Place': birthPlace ?? '',
-        'ID Card Number': idCardNumber,
+        'Birth Date': birthDate?.toIso8601String().split('T')[0] ?? '',
+        'Birth Place': birthPlace,
+        'ID Card Number': idCardNumber ?? '',
         'Issuing Authority': issuingAuthority ?? '',
         'University': university ?? '',
         'Department': department ?? '',
@@ -154,7 +185,14 @@ class Student {
         'Parent Region': parentRegion ?? '',
         'Parent Postal': parentPostal ?? '',
         'Parent Country': parentCountry ?? '',
-        'Created At': createdAt.toIso8601String().split('T')[0],
+        'Parent Phone': parentPhone ?? '',
+        'Terms Accepted': termsAccepted ? (yesText ?? 'Yes') : (noText ?? 'No'),
+        'Privacy Policy Accepted':
+            privacyPolicyAccepted ? (yesText ?? 'Yes') : (noText ?? 'No'),
+        'Data Processing Consent':
+            dataProcessingConsent ? (yesText ?? 'Yes') : (noText ?? 'No'),
+        'Created At': createdAt?.toIso8601String().split('T')[0] ?? '',
+        'Updated At': updatedAt?.toIso8601String().split('T')[0] ?? '',
       };
 
   Student copyWith({
@@ -181,15 +219,22 @@ class Student {
     String? parentRegion,
     String? parentPostal,
     String? parentCountry,
+    String? parentPhone,
+    DateTime? consentDate,
+    bool? termsAccepted,
+    bool? privacyPolicyAccepted,
+    bool? dataProcessingConsent,
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) =>
       Student(
         id: id ?? this.id,
         name: name ?? this.name,
         familyName: familyName ?? this.familyName,
+        email: email ?? this.email,
+        birthDate: birthDate ?? this.birthDate,
         fatherName: fatherName ?? this.fatherName,
         motherName: motherName ?? this.motherName,
-        birthDate: birthDate ?? this.birthDate,
         birthPlace: birthPlace ?? this.birthPlace,
         idCardNumber: idCardNumber ?? this.idCardNumber,
         issuingAuthority: issuingAuthority ?? this.issuingAuthority,
@@ -199,7 +244,6 @@ class Student {
         department: department ?? this.department,
         yearOfStudy: yearOfStudy ?? this.yearOfStudy,
         hasOtherDegree: hasOtherDegree ?? this.hasOtherDegree,
-        email: email ?? this.email,
         fatherJob: fatherJob ?? this.fatherJob,
         motherJob: motherJob ?? this.motherJob,
         parentAddress: parentAddress ?? this.parentAddress,
@@ -207,32 +251,53 @@ class Student {
         parentRegion: parentRegion ?? this.parentRegion,
         parentPostal: parentPostal ?? this.parentPostal,
         parentCountry: parentCountry ?? this.parentCountry,
+        parentPhone: parentPhone ?? this.parentPhone,
+        consentDate: consentDate ?? this.consentDate,
+        termsAccepted: termsAccepted ?? this.termsAccepted,
+        privacyPolicyAccepted:
+            privacyPolicyAccepted ?? this.privacyPolicyAccepted,
+        dataProcessingConsent:
+            dataProcessingConsent ?? this.dataProcessingConsent,
         createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
       );
 
   String get fullName => '$name $familyName'.trim();
 
   String get fullParentAddress {
     final parts = <String>[];
-    if ((parentAddress?.isNotEmpty) ?? false) parts.add(parentAddress!);
-    if ((parentCity?.isNotEmpty) ?? false) parts.add(parentCity!);
-    if ((parentRegion?.isNotEmpty) ?? false) parts.add(parentRegion!);
-    if ((parentPostal?.isNotEmpty) ?? false) parts.add(parentPostal!);
-    if ((parentCountry?.isNotEmpty) ?? false) parts.add(parentCountry!);
+    if (parentAddress != null && parentAddress!.isNotEmpty) {
+      parts.add(parentAddress!);
+    }
+    if (parentCity != null && parentCity!.isNotEmpty) {
+      parts.add(parentCity!);
+    }
+    if (parentRegion != null && parentRegion!.isNotEmpty) {
+      parts.add(parentRegion!);
+    }
+    if (parentPostal != null && parentPostal!.isNotEmpty) {
+      parts.add(parentPostal!);
+    }
+    if (parentCountry != null && parentCountry!.isNotEmpty) {
+      parts.add(parentCountry!);
+    }
     return parts.join(', ');
   }
 
   bool get isComplete =>
       name.isNotEmpty &&
       familyName.isNotEmpty &&
+      birthDate != null &&
+      birthPlace.isNotEmpty &&
       email.isNotEmpty &&
-      idCardNumber.isNotEmpty;
+      (phone?.isNotEmpty ?? false);
 
   int? get age {
+    if (birthDate == null) return null;
     final now = DateTime.now();
-    var age = now.year - birthDate.year;
-    if (now.month < birthDate.month ||
-        (now.month == birthDate.month && now.day < birthDate.day)) {
+    var age = now.year - birthDate!.year;
+    if (now.month < birthDate!.month ||
+        (now.month == birthDate!.month && now.day < birthDate!.day)) {
       age--;
     }
     return age;

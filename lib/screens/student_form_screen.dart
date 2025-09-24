@@ -21,64 +21,55 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
 
   bool _isLoading = false;
   bool _isSaving = false;
-  Student? _existingStudent;
+  late Student? _existingStudent;
 
   // Text controllers
-  final _nameController = TextEditingController();
-  final _familyNameController = TextEditingController();
-  final _fatherNameController = TextEditingController();
-  final _motherNameController = TextEditingController();
-  final _birthPlaceController = TextEditingController();
-  final _idCardController = TextEditingController();
-  final _issuingAuthorityController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _taxNumberController = TextEditingController();
-  final _fatherJobController = TextEditingController();
-  final _motherJobController = TextEditingController();
-  final _parentAddressController = TextEditingController();
-  final _parentCityController = TextEditingController();
-  final _parentRegionController = TextEditingController();
-  final _parentPostalController = TextEditingController();
-  final _parentCountryController = TextEditingController();
+  late final _nameController = TextEditingController();
+  late final _familyNameController = TextEditingController();
+  late final _fatherNameController = TextEditingController();
+  late final _motherNameController = TextEditingController();
+  late final _birthPlaceController = TextEditingController();
+  late final _idCardController = TextEditingController();
+  late final _issuingAuthorityController = TextEditingController();
+  late final _emailController = TextEditingController();
+  late final _phoneController = TextEditingController();
+  late final _passwordController = TextEditingController();
+  late final _taxNumberController = TextEditingController();
+  late final _fatherJobController = TextEditingController();
+  late final _motherJobController = TextEditingController();
+  late final _parentAddressController = TextEditingController();
+  late final _parentCityController = TextEditingController();
+  late final _parentRegionController = TextEditingController();
+  late final _parentPostalController = TextEditingController();
+  late final _parentCountryController = TextEditingController();
 
-  final _universityController = TextEditingController();
+  late final _universityController = TextEditingController();
+  late final _departmentController = TextEditingController();
 
   DateTime? _selectedBirthDate;
-  String? _selectedDepartment;
   String? _selectedYearOfStudy;
   bool _hasOtherDegree = false;
 
   // Dropdown options - will be populated with localized values
-  List<String> _departments = [];
-  List<String> _yearsOfStudy = [];
+  List<String>? _yearsOfStudy;
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
     super.initState();
+    _existingStudent = null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeLocalizedData();
+      if (widget.studentId != null) {
+        _loadStudent();
+      }
     });
-    if (widget.studentId != null) {
-      _loadStudent();
-    }
   }
 
   void _initializeLocalizedData() {
     final langService = Provider.of<LanguageService>(context, listen: false);
 
     // Initialize localized dropdown values
-    _departments = [
-      langService.getString('student_form.departments.computer_science'),
-      langService.getString('student_form.departments.electrical_engineering'),
-      langService.getString('student_form.departments.mechanical_engineering'),
-      langService.getString('student_form.departments.civil_engineering'),
-      langService.getString('student_form.departments.business_administration'),
-      langService.getString('student_form.departments.medicine'),
-      langService.getString('student_form.departments.law'),
-      langService.getString('student_form.departments.other'),
-    ];
-
     _yearsOfStudy = [
       langService.getString('student_form.years_of_study.first_year'),
       langService.getString('student_form.years_of_study.second_year'),
@@ -129,7 +120,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
             .getString('student_form.years_of_study.postgraduate');
       default:
         // If the value already matches one of our localized strings, return it
-        if (_yearsOfStudy.contains(databaseValue)) {
+        if (_yearsOfStudy?.contains(databaseValue) ?? false) {
           return databaseValue;
         }
         // Otherwise, return null to avoid the dropdown error
@@ -180,6 +171,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     _issuingAuthorityController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _passwordController.dispose();
     _taxNumberController.dispose();
     _fatherJobController.dispose();
     _motherJobController.dispose();
@@ -190,6 +182,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     _parentCountryController.dispose();
 
     _universityController.dispose();
+    _departmentController.dispose();
     super.dispose();
   }
 
@@ -232,8 +225,8 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     _familyNameController.text = student.familyName;
     _fatherNameController.text = student.fatherName ?? '';
     _motherNameController.text = student.motherName ?? '';
-    _birthPlaceController.text = student.birthPlace ?? '';
-    _idCardController.text = student.idCardNumber;
+    _birthPlaceController.text = student.birthPlace;
+    _idCardController.text = student.idCardNumber ?? '';
     _issuingAuthorityController.text = student.issuingAuthority ?? '';
     _universityController.text = student.university ?? '';
     _phoneController.text = student.phone ?? '';
@@ -249,7 +242,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
     _emailController.text = student.email;
     _selectedBirthDate = student.birthDate;
     _universityController.text = student.university ?? '';
-    _selectedDepartment = student.department;
+    _departmentController.text = student.department ?? '';
     _selectedYearOfStudy =
         _mapDatabaseValueToLocalizedYear(student.yearOfStudy);
     _hasOtherDegree = student.hasOtherDegree;
@@ -268,6 +261,34 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
       return;
     }
 
+    // Check birth place is not empty since it's required
+    if (_birthPlaceController.text.trim().isEmpty) {
+      final langService = Provider.of<LanguageService>(context, listen: false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            langService.getString('student_form.validators.birth_place'),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Check password is not empty for new students only
+    if (widget.studentId == null && _passwordController.text.trim().isEmpty) {
+      final langService = Provider.of<LanguageService>(context, listen: false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            langService.getString('student_form.validators.password'),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isSaving = true);
 
     try {
@@ -277,57 +298,125 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
           id: _existingStudent!.id,
           name: _nameController.text.trim(),
           familyName: _familyNameController.text.trim(),
-          fatherName: _fatherNameController.text.trim(),
-          motherName: _motherNameController.text.trim(),
-          birthDate: _selectedBirthDate!,
+          fatherName: _fatherNameController.text.trim().isEmpty
+              ? null
+              : _fatherNameController.text.trim(),
+          motherName: _motherNameController.text.trim().isEmpty
+              ? null
+              : _motherNameController.text.trim(),
+          birthDate: _selectedBirthDate,
           birthPlace: _birthPlaceController.text.trim(),
-          idCardNumber: _idCardController.text.trim(),
-          issuingAuthority: _issuingAuthorityController.text.trim(),
-          university: _universityController.text.trim(),
-          department: _selectedDepartment!,
-          yearOfStudy: _mapLocalizedYearToDatabaseValue(_selectedYearOfStudy)!,
+          idCardNumber: _idCardController.text.trim().isEmpty
+              ? null
+              : _idCardController.text.trim(),
+          issuingAuthority: _issuingAuthorityController.text.trim().isEmpty
+              ? null
+              : _issuingAuthorityController.text.trim(),
+          university: _universityController.text.trim().isEmpty
+              ? null
+              : _universityController.text.trim(),
+          department: _departmentController.text.trim().isEmpty
+              ? null
+              : _departmentController.text.trim(),
+          yearOfStudy: _mapLocalizedYearToDatabaseValue(_selectedYearOfStudy),
           hasOtherDegree: _hasOtherDegree,
           email: _emailController.text.trim(),
           phone: _phoneController.text.trim(),
-          taxNumber: _taxNumberController.text.trim(),
-          fatherJob: _fatherJobController.text.trim(),
-          motherJob: _motherJobController.text.trim(),
-          parentAddress: _parentAddressController.text.trim(),
-          parentCity: _parentCityController.text.trim(),
-          parentRegion: _parentRegionController.text.trim(),
-          parentPostal: _parentPostalController.text.trim(),
-          parentCountry: _parentCountryController.text.trim(),
+          taxNumber: _taxNumberController.text.trim().isEmpty
+              ? null
+              : _taxNumberController.text.trim(),
+          fatherJob: _fatherJobController.text.trim().isEmpty
+              ? null
+              : _fatherJobController.text.trim(),
+          motherJob: _motherJobController.text.trim().isEmpty
+              ? null
+              : _motherJobController.text.trim(),
+          parentAddress: _parentAddressController.text.trim().isEmpty
+              ? null
+              : _parentAddressController.text.trim(),
+          parentCity: _parentCityController.text.trim().isEmpty
+              ? null
+              : _parentCityController.text.trim(),
+          parentRegion: _parentRegionController.text.trim().isEmpty
+              ? null
+              : _parentRegionController.text.trim(),
+          parentPostal: _parentPostalController.text.trim().isEmpty
+              ? null
+              : _parentPostalController.text.trim(),
+          parentCountry: _parentCountryController.text.trim().isEmpty
+              ? null
+              : _parentCountryController.text.trim(),
           createdAt: _existingStudent!.createdAt,
         );
         await _studentService.updateStudent(student);
       } else {
         // Create new student - let database generate ID
-        final studentData = {
+        final studentData = <String, dynamic>{
           'name': _nameController.text.trim(),
           'family_name': _familyNameController.text.trim(),
-          'father_name': _fatherNameController.text.trim(),
-          'mother_name': _motherNameController.text.trim(),
           'birth_date': _selectedBirthDate!.toIso8601String().split('T')[0],
           'birth_place': _birthPlaceController.text.trim(),
-          'id_card_number': _idCardController.text.trim(),
-          'issuing_authority': _issuingAuthorityController.text.trim(),
-          'university': _universityController.text.trim(),
-          'department': _selectedDepartment ?? '',
-          'year_of_study':
-              _mapLocalizedYearToDatabaseValue(_selectedYearOfStudy) ?? '',
           'has_other_degree': _hasOtherDegree,
           'email': _emailController.text.trim(),
           'phone': _phoneController.text.trim(),
-          'tax_number': _taxNumberController.text.trim(),
-          'father_job': _fatherJobController.text.trim(),
-          'mother_job': _motherJobController.text.trim(),
-          'parent_address': _parentAddressController.text.trim(),
-          'parent_city': _parentCityController.text.trim(),
-          'parent_region': _parentRegionController.text.trim(),
-          'parent_postal': _parentPostalController.text.trim(),
-          'parent_country': _parentCountryController.text.trim(),
           'created_at': DateTime.now().toIso8601String(),
         };
+
+        // Add password only for new students
+        if (widget.studentId == null) {
+          studentData['password'] = _passwordController.text.trim();
+        }
+
+        // Only add non-empty optional fields
+        if (_fatherNameController.text.trim().isNotEmpty) {
+          studentData['father_name'] = _fatherNameController.text.trim();
+        }
+        if (_motherNameController.text.trim().isNotEmpty) {
+          studentData['mother_name'] = _motherNameController.text.trim();
+        }
+        if (_idCardController.text.trim().isNotEmpty) {
+          studentData['id_card_number'] = _idCardController.text.trim();
+        }
+        if (_issuingAuthorityController.text.trim().isNotEmpty) {
+          studentData['issuing_authority'] =
+              _issuingAuthorityController.text.trim();
+        }
+        if (_universityController.text.trim().isNotEmpty) {
+          studentData['university'] = _universityController.text.trim();
+        }
+        if (_departmentController.text.trim().isNotEmpty) {
+          studentData['department'] = _departmentController.text.trim();
+        }
+        final yearOfStudy =
+            _mapLocalizedYearToDatabaseValue(_selectedYearOfStudy);
+        if (yearOfStudy != null && yearOfStudy.isNotEmpty) {
+          studentData['year_of_study'] = yearOfStudy;
+        }
+        if (_taxNumberController.text.trim().isNotEmpty) {
+          studentData['tax_number'] = _taxNumberController.text.trim();
+        }
+        if (_fatherJobController.text.trim().isNotEmpty) {
+          studentData['father_job'] = _fatherJobController.text.trim();
+        }
+        if (_motherJobController.text.trim().isNotEmpty) {
+          studentData['mother_job'] = _motherJobController.text.trim();
+        }
+        if (_parentAddressController.text.trim().isNotEmpty) {
+          studentData['parent_address'] = _parentAddressController.text.trim();
+        }
+        if (_parentCityController.text.trim().isNotEmpty) {
+          studentData['parent_city'] = _parentCityController.text.trim();
+        }
+        if (_parentRegionController.text.trim().isNotEmpty) {
+          studentData['parent_region'] = _parentRegionController.text.trim();
+        }
+        if (_parentPostalController.text.trim().isNotEmpty) {
+          studentData['parent_postal'] = _parentPostalController.text.trim();
+        }
+        if (_parentCountryController.text.trim().isNotEmpty) {
+          studentData['parent_country'] = _parentCountryController.text.trim();
+        }
+
         await _studentService.createStudentFromData(studentData);
       }
 
@@ -359,6 +448,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
               ),
             ),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
           ),
         );
       }
@@ -407,19 +497,31 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
             body: Form(
               key: _formKey,
               child: SingleChildScrollView(
-                padding: EdgeInsets.all(
-                    ResponsiveUtils.getResponsivePadding(context)),
+                padding: ResponsiveUtils.getResponsiveContentPadding(context),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildPersonalInfoSection(langService),
-                    const SizedBox(height: 24),
+                    SizedBox(
+                      height:
+                          ResponsiveUtils.getResponsiveVerticalSpacing(context),
+                    ),
                     _buildEducationSection(langService),
-                    const SizedBox(height: 24),
+                    SizedBox(
+                      height:
+                          ResponsiveUtils.getResponsiveVerticalSpacing(context),
+                    ),
                     _buildContactSection(langService),
-                    const SizedBox(height: 24),
+                    SizedBox(
+                      height:
+                          ResponsiveUtils.getResponsiveVerticalSpacing(context),
+                    ),
                     _buildParentInfoSection(langService),
-                    const SizedBox(height: 32),
+                    SizedBox(
+                      height: ResponsiveUtils.getResponsiveVerticalSpacing(
+                              context,) *
+                          2,
+                    ),
                     _buildActionButtons(langService),
                   ],
                 ),
@@ -455,14 +557,15 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                         autocorrect: false,
                         enableSuggestions: false,
                         decoration: InputDecoration(
-                          labelText: langService
-                              .getString('student_form.fields.first_name'),
+                          labelText:
+                              '${langService.getString('student_form.fields.first_name')} *',
                           border: const OutlineInputBorder(),
                         ),
                         validator: (value) => Validators.required(
-                            value,
-                            langService.getString(
-                                'student_form.validators.first_name')),
+                          value,
+                          langService
+                              .getString('student_form.validators.first_name'),
+                        ),
                       ),
                     ),
                   ),
@@ -475,14 +578,15 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                         autocorrect: false,
                         enableSuggestions: false,
                         decoration: InputDecoration(
-                          labelText: langService
-                              .getString('student_form.fields.last_name'),
+                          labelText:
+                              '${langService.getString('student_form.fields.last_name')} *',
                           border: const OutlineInputBorder(),
                         ),
                         validator: (value) => Validators.required(
-                            value,
-                            langService.getString(
-                                'student_form.validators.last_name')),
+                          value,
+                          langService
+                              .getString('student_form.validators.last_name'),
+                        ),
                       ),
                     ),
                   ),
@@ -503,10 +607,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                               .getString('student_form.fields.father_name'),
                           border: const OutlineInputBorder(),
                         ),
-                        validator: (value) => Validators.required(
-                            value,
-                            langService.getString(
-                                'student_form.validators.father_name')),
                       ),
                     ),
                   ),
@@ -523,10 +623,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                               .getString('student_form.fields.mother_name'),
                           border: const OutlineInputBorder(),
                         ),
-                        validator: (value) => Validators.required(
-                            value,
-                            langService.getString(
-                                'student_form.validators.mother_name')),
                       ),
                     ),
                   ),
@@ -541,8 +637,8 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                         onTap: () => _selectDate(context),
                         child: InputDecorator(
                           decoration: InputDecoration(
-                            labelText: langService
-                                .getString('student_form.fields.birth_date'),
+                            labelText:
+                                '${langService.getString('student_form.fields.birth_date')} *',
                             border: const OutlineInputBorder(),
                             suffixIcon: const Icon(Icons.calendar_today),
                           ),
@@ -550,7 +646,8 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                             _selectedBirthDate != null
                                 ? '${_selectedBirthDate!.day}/${_selectedBirthDate!.month}/${_selectedBirthDate!.year}'
                                 : langService.getString(
-                                    'student_form.fields.select_date'),
+                                    'student_form.fields.select_date',
+                                  ),
                             style: TextStyle(
                               color: _selectedBirthDate != null
                                   ? Colors.black
@@ -570,14 +667,15 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                         autocorrect: false,
                         enableSuggestions: false,
                         decoration: InputDecoration(
-                          labelText: langService
-                              .getString('student_form.fields.birth_place'),
+                          labelText:
+                              '${langService.getString('student_form.fields.birth_place')} *',
                           border: const OutlineInputBorder(),
                         ),
                         validator: (value) => Validators.required(
-                            value,
-                            langService
-                                .getString('student_form.fields.birth_place')),
+                          value,
+                          langService
+                              .getString('student_form.fields.birth_place'),
+                        ),
                       ),
                     ),
                   ),
@@ -598,10 +696,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                               .getString('student_form.fields.id_card_number'),
                           border: const OutlineInputBorder(),
                         ),
-                        validator: (value) => Validators.required(
-                            value,
-                            langService.getString(
-                                'student_form.fields.id_card_number')),
                       ),
                     ),
                   ),
@@ -615,13 +709,10 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                         enableSuggestions: false,
                         decoration: InputDecoration(
                           labelText: langService.getString(
-                              'student_form.fields.issuing_authority'),
+                            'student_form.fields.issuing_authority',
+                          ),
                           border: const OutlineInputBorder(),
                         ),
-                        validator: (value) => Validators.required(
-                            value,
-                            langService.getString(
-                                'student_form.fields.issuing_authority')),
                       ),
                     ),
                   ),
@@ -661,10 +752,6 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                     hintText: langService
                         .getString('student_form.fields.university_hint'),
                   ),
-                  validator: (value) => Validators.required(
-                      value,
-                      langService
-                          .getString('student_form.validators.university')),
                 ),
               ),
               const SizedBox(height: 16),
@@ -672,26 +759,16 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                 children: [
                   Expanded(
                     child: Consumer<LanguageService>(
-                      builder: (context, langService, child) =>
-                          DropdownButtonFormField<String>(
-                        value: _departments.contains(_selectedDepartment)
-                            ? _selectedDepartment
-                            : null,
+                      builder: (context, langService, child) => TextFormField(
+                        controller: _departmentController,
+                        textInputAction: TextInputAction.next,
+                        autocorrect: false,
+                        enableSuggestions: false,
                         decoration: InputDecoration(
                           labelText: langService
                               .getString('student_form.fields.department'),
                           border: const OutlineInputBorder(),
                         ),
-                        items: _departments
-                            .map((dept) => DropdownMenuItem(
-                                value: dept, child: Text(dept)))
-                            .toList(),
-                        onChanged: (value) =>
-                            setState(() => _selectedDepartment = value),
-                        validator: (value) => value == null
-                            ? langService
-                                .getString('student_form.validators.department')
-                            : null,
                       ),
                     ),
                   ),
@@ -700,24 +777,27 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                     child: Consumer<LanguageService>(
                       builder: (context, langService, child) =>
                           DropdownButtonFormField<String>(
-                        value: _yearsOfStudy.contains(_selectedYearOfStudy)
-                            ? _selectedYearOfStudy
-                            : null,
+                        initialValue:
+                            (_yearsOfStudy?.contains(_selectedYearOfStudy) ??
+                                    false)
+                                ? _selectedYearOfStudy
+                                : null,
                         decoration: InputDecoration(
                           labelText: langService
                               .getString('student_form.fields.year_of_study'),
                           border: const OutlineInputBorder(),
                         ),
                         items: _yearsOfStudy
-                            .map((year) => DropdownMenuItem(
-                                value: year, child: Text(year)))
-                            .toList(),
+                                ?.map(
+                                  (year) => DropdownMenuItem(
+                                    value: year,
+                                    child: Text(year),
+                                  ),
+                                )
+                                .toList() ??
+                            [],
                         onChanged: (value) =>
                             setState(() => _selectedYearOfStudy = value),
-                        validator: (value) => value == null
-                            ? langService.getString(
-                                'student_form.validators.year_of_study')
-                            : null,
                       ),
                     ),
                   ),
@@ -726,8 +806,10 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
               const SizedBox(height: 16),
               Consumer<LanguageService>(
                 builder: (context, langService, child) => CheckboxListTile(
-                  title: Text(langService
-                      .getString('student_form.fields.has_other_degree')),
+                  title: Text(
+                    langService
+                        .getString('student_form.fields.has_other_degree'),
+                  ),
                   value: _hasOtherDegree,
                   onChanged: (value) =>
                       setState(() => _hasOtherDegree = value ?? false),
@@ -764,11 +846,12 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                   enableSuggestions: false,
                   decoration: InputDecoration(
                     labelText:
-                        langService.getString('student_form.fields.email'),
+                        '${langService.getString('student_form.fields.email')} *',
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.email),
                   ),
-                  validator: (value) => Validators.email(value),
+                  validator: (value) =>
+                      Validators.emailValidated(value, context),
                 ),
               ),
               const SizedBox(height: 16),
@@ -783,32 +866,68 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
                         autocorrect: false,
                         enableSuggestions: false,
                         decoration: InputDecoration(
-                          labelText: langService
-                              .getString('student_form.fields.phone'),
+                          labelText:
+                              '${langService.getString('student_form.fields.phone')} *',
                           border: const OutlineInputBorder(),
                           prefixIcon: const Icon(Icons.phone),
                         ),
-                        validator: (value) => Validators.phone(value),
+                        validator: (value) =>
+                            Validators.phoneValidated(value, context),
                       ),
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Expanded(
-                    child: Consumer<LanguageService>(
-                      builder: (context, langService, child) => TextFormField(
-                        controller: _taxNumberController,
-                        textInputAction: TextInputAction.next,
-                        autocorrect: false,
-                        enableSuggestions: false,
-                        decoration: InputDecoration(
-                          labelText: langService
-                              .getString('student_form.fields.tax_number'),
-                          border: const OutlineInputBorder(),
+                  if (widget.studentId ==
+                      null) // Only show password field for new students
+                    Expanded(
+                      child: Consumer<LanguageService>(
+                        builder: (context, langService, child) => TextFormField(
+                          controller: _passwordController,
+                          textInputAction: TextInputAction.next,
+                          obscureText: !_isPasswordVisible,
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          decoration: InputDecoration(
+                            labelText:
+                                '${langService.getString('student_form.fields.password')} *',
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.lock),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _isPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isPasswordVisible = !_isPasswordVisible;
+                                });
+                              },
+                            ),
+                          ),
+                          validator: (value) =>
+                              Validators.passwordValidated(value, context),
                         ),
                       ),
                     ),
-                  ),
+                  if (widget.studentId !=
+                      null) // Add spacer for edit mode to maintain layout
+                    const Expanded(child: SizedBox()),
                 ],
+              ),
+              const SizedBox(height: 16),
+              Consumer<LanguageService>(
+                builder: (context, langService, child) => TextFormField(
+                  controller: _taxNumberController,
+                  textInputAction: TextInputAction.next,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: InputDecoration(
+                    labelText:
+                        langService.getString('student_form.fields.tax_number'),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
               ),
             ],
           ),
@@ -961,7 +1080,7 @@ class _StudentFormScreenState extends State<StudentFormScreen> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           TextButton(
-            onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
+            onPressed: _isSaving ? null : () => Navigator.pop(context),
             child: Text(langService.getString('buttons.cancel')),
           ),
           const SizedBox(width: 16),

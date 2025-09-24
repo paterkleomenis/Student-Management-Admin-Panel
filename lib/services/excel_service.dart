@@ -8,7 +8,11 @@ import 'package:intl/intl.dart';
 import '../models/student.dart';
 
 class ExcelService {
-  static const String _fileName = 'students_export';
+  static String get _fileName {
+    final timestamp =
+        DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
+    return 'students_export_$timestamp';
+  }
 
   static Future<void> exportStudentsToExcel(
     List<Student> students, {
@@ -91,7 +95,7 @@ class ExcelService {
           );
 
           // Map localized header back to English key for data lookup
-          String englishKey = header;
+          var englishKey = header;
           if (localizedHeaders != null) {
             // Find the English key that corresponds to this localized header
             for (final entry in localizedHeaders.entries) {
@@ -220,9 +224,11 @@ class ExcelService {
       final excelUint8List =
           excelBytes != null ? Uint8List.fromList(excelBytes) : null;
 
+      final timestamp =
+          DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
       final outputFile = await FilePicker.platform.saveFile(
         dialogTitle: localizedTitles?['save_excel_title'] ?? 'Save Excel File',
-        fileName: localizedTitles?['students_export'] ?? 'students_export.xlsx',
+        fileName: 'students_export_$timestamp.xlsx',
         bytes: excelUint8List,
       );
 
@@ -384,7 +390,7 @@ class ExcelService {
           );
 
           // Map localized header back to English key for data lookup
-          String englishKey = header;
+          var englishKey = header;
           if (localizedHeaders != null) {
             // Find the English key that corresponds to this localized header
             for (final entry in localizedHeaders.entries) {
@@ -537,7 +543,8 @@ class ExcelService {
         CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0),
       );
       titleCell.value = TextCellValue(
-          localizedTitles?['summary'] ?? 'Students Database Summary');
+        localizedTitles?['summary'] ?? 'Students Database Summary',
+      );
       titleCell.cellStyle = CellStyle(bold: true, fontSize: 16);
 
       // Generation date
@@ -622,9 +629,11 @@ class ExcelService {
       summarySheet.setColumnAutoFit(1);
 
       // Generate and download summary Excel file
+      final timestamp =
+          DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
       excel.save(
-          fileName:
-              localizedTitles?['students_summary'] ?? 'students_summary.xlsx');
+        fileName: 'students_summary_$timestamp.xlsx',
+      );
     } catch (e) {
       throw Exception('Failed to export summary to Excel: $e');
     }

@@ -63,15 +63,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     for (final student in _students) {
       // University statistics
-      final university = student.university ?? 'Unknown';
+      final langService = Provider.of<LanguageService>(context, listen: false);
+      final university =
+          student.university ?? langService.getString('common.unknown');
       _universityStats[university] = (_universityStats[university] ?? 0) + 1;
 
       // Department statistics
-      final department = student.department ?? 'Unknown';
+      final department =
+          student.department ?? langService.getString('common.unknown');
       _departmentStats[department] = (_departmentStats[department] ?? 0) + 1;
 
       // Year of study statistics
-      final yearOfStudy = student.yearOfStudy ?? 'Unknown';
+      final yearOfStudy =
+          student.yearOfStudy ?? langService.getString('common.unknown');
       _yearStats[yearOfStudy] = (_yearStats[yearOfStudy] ?? 0) + 1;
     }
   }
@@ -127,18 +131,27 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Analytics and insights about student data',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.grey[600],
-                ),
+          Consumer<LanguageService>(
+            builder: (context, langService, child) => Text(
+              langService.getString('reports.subtitle'),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+            ),
           ),
           const SizedBox(height: 16),
-          Text(
-            'Last updated: ${DateTime.now().toString().split('.')[0]}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[500],
-                ),
+          Consumer<LanguageService>(
+            builder: (context, langService, child) => Text(
+              langService.getString(
+                'reports.last_updated',
+                params: {
+                  'timestamp': DateTime.now().toString().split('.')[0],
+                },
+              ),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[500],
+                  ),
+            ),
           ),
         ],
       );
@@ -153,38 +166,46 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return Row(
       children: [
         Expanded(
-          child: _buildStatCard(
-            'Total Students',
-            totalStudents.toString(),
-            Icons.school,
-            Colors.blue,
+          child: Consumer<LanguageService>(
+            builder: (context, langService, child) => _buildStatCard(
+              langService.getString('reports.total_students'),
+              totalStudents.toString(),
+              Icons.school,
+              Colors.blue,
+            ),
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: _buildStatCard(
-            'Universities',
-            uniqueUniversities.toString(),
-            Icons.account_balance,
-            Colors.green,
+          child: Consumer<LanguageService>(
+            builder: (context, langService, child) => _buildStatCard(
+              langService.getString('reports.universities'),
+              uniqueUniversities.toString(),
+              Icons.account_balance,
+              Colors.green,
+            ),
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: _buildStatCard(
-            'Departments',
-            uniqueDepartments.toString(),
-            Icons.category,
-            Colors.orange,
+          child: Consumer<LanguageService>(
+            builder: (context, langService, child) => _buildStatCard(
+              langService.getString('reports.departments'),
+              uniqueDepartments.toString(),
+              Icons.category,
+              Colors.orange,
+            ),
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: _buildStatCard(
-            'With Other Degree',
-            studentsWithOtherDegree.toString(),
-            Icons.emoji_events,
-            Colors.purple,
+          child: Consumer<LanguageService>(
+            builder: (context, langService, child) => _buildStatCard(
+              langService.getString('reports.with_other_degree'),
+              studentsWithOtherDegree.toString(),
+              Icons.emoji_events,
+              Colors.purple,
+            ),
           ),
         ),
       ],
@@ -224,10 +245,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _buildUniversityChart(LanguageService langService) {
     if (_universityStats.isEmpty) {
-      return const Card(
+      return Card(
         child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Center(child: Text('No university data available')),
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: Consumer<LanguageService>(
+              builder: (context, langService, child) => Text(
+                langService.getString('reports.no_university_data'),
+              ),
+            ),
+          ),
         ),
       );
     }
@@ -238,11 +265,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Students by University',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+            Consumer<LanguageService>(
+              builder: (context, langService, child) => Text(
+                langService.getString('reports.students_by_university'),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -277,10 +306,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _buildDepartmentChart(LanguageService langService) {
     if (_departmentStats.isEmpty) {
-      return const Card(
+      return Card(
         child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Center(child: Text('No department data available')),
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: Consumer<LanguageService>(
+              builder: (context, langService, child) => Text(
+                langService.getString('reports.no_department_data'),
+              ),
+            ),
+          ),
         ),
       );
     }
@@ -291,11 +326,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Students by Department',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+            Consumer<LanguageService>(
+              builder: (context, langService, child) => Text(
+                langService.getString('reports.students_by_department'),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -337,10 +374,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         reservedSize: 40,
                       ),
                     ),
-                    rightTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(),
+                    topTitles: const AxisTitles(),
                   ),
                   borderData: FlBorderData(show: false),
                   barGroups: _departmentStats.entries
@@ -374,10 +409,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _buildYearOfStudyChart(LanguageService langService) {
     if (_yearStats.isEmpty) {
-      return const Card(
+      return Card(
         child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Center(child: Text('No year of study data available')),
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: Consumer<LanguageService>(
+              builder: (context, langService, child) => Text(
+                langService.getString('reports.no_year_data'),
+              ),
+            ),
+          ),
         ),
       );
     }
@@ -388,11 +429,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Students by Year of Study',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+            Consumer<LanguageService>(
+              builder: (context, langService, child) => Text(
+                langService.getString('reports.students_by_year'),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -422,10 +465,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         reservedSize: 40,
                       ),
                     ),
-                    rightTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles:
-                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(),
+                    topTitles: const AxisTitles(),
                   ),
                   borderData: FlBorderData(show: true),
                   lineBarsData: [
@@ -461,28 +502,57 @@ class _ReportsScreenState extends State<ReportsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Detailed Statistics',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+              Consumer<LanguageService>(
+                builder: (context, langService, child) => Text(
+                  langService.getString('reports.detailed_statistics'),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
               ),
               const SizedBox(height: 16),
-              _buildStatRow('Total Students', _students.length.toString()),
-              _buildStatRow('Average Age', _calculateAverageAge()),
-              _buildStatRow(
-                'Students with Other Degree',
-                _students.where((s) => s.hasOtherDegree).length.toString(),
+              Consumer<LanguageService>(
+                builder: (context, langService, child) => Column(
+                  children: [
+                    _buildStatRow(
+                      langService.getString('reports.total_students'),
+                      _students.length.toString(),
+                    ),
+                    _buildStatRow(
+                      langService.getString('reports.average_age'),
+                      _calculateAverageAge(),
+                    ),
+                    _buildStatRow(
+                      langService
+                          .getString('reports.students_with_other_degree'),
+                      _students
+                          .where((s) => s.hasOtherDegree)
+                          .length
+                          .toString(),
+                    ),
+                  ],
+                ),
               ),
-              _buildStatRow(
-                'Most Popular University',
-                _getMostPopularUniversity(),
+              Consumer<LanguageService>(
+                builder: (context, langService, child) => _buildStatRow(
+                  langService.getString('reports.most_popular_university'),
+                  _getMostPopularUniversity(),
+                ),
               ),
-              _buildStatRow(
-                'Most Popular Department',
-                _getMostPopularDepartment(),
+              Consumer<LanguageService>(
+                builder: (context, langService, child) => Column(
+                  children: [
+                    _buildStatRow(
+                      langService.getString('reports.most_popular_department'),
+                      _getMostPopularDepartment(),
+                    ),
+                    _buildStatRow(
+                      langService.getString('reports.most_common_year'),
+                      _getMostCommonYear(),
+                    ),
+                  ],
+                ),
               ),
-              _buildStatRow('Most Common Year', _getMostCommonYear()),
             ],
           ),
         ),
@@ -550,29 +620,41 @@ class _ReportsScreenState extends State<ReportsScreen> {
   String _calculateAverageAge() {
     if (_students.isEmpty) return '0';
     final now = DateTime.now();
-    final totalAge = _students.fold<int>(
+    final studentsWithBirthDate =
+        _students.where((student) => student.birthDate != null).toList();
+    if (studentsWithBirthDate.isEmpty) return '0';
+    final totalAge = studentsWithBirthDate.fold<int>(
       0,
-      (sum, student) => sum + now.difference(student.birthDate).inDays ~/ 365,
+      (sum, student) => sum + now.difference(student.birthDate!).inDays ~/ 365,
     );
-    return (totalAge / _students.length).toStringAsFixed(1);
+    return (totalAge / studentsWithBirthDate.length).toStringAsFixed(1);
   }
 
   String _getMostPopularUniversity() {
-    if (_universityStats.isEmpty) return 'N/A';
+    if (_universityStats.isEmpty) {
+      return Provider.of<LanguageService>(context, listen: false)
+          .getString('common.not_provided');
+    }
     final mostPopular =
         _universityStats.entries.reduce((a, b) => a.value > b.value ? a : b);
     return '${mostPopular.key} (${mostPopular.value})';
   }
 
   String _getMostPopularDepartment() {
-    if (_departmentStats.isEmpty) return 'N/A';
+    if (_departmentStats.isEmpty) {
+      return Provider.of<LanguageService>(context, listen: false)
+          .getString('common.not_provided');
+    }
     final mostPopular =
         _departmentStats.entries.reduce((a, b) => a.value > b.value ? a : b);
     return '${mostPopular.key} (${mostPopular.value})';
   }
 
   String _getMostCommonYear() {
-    if (_yearStats.isEmpty) return 'N/A';
+    if (_yearStats.isEmpty) {
+      return Provider.of<LanguageService>(context, listen: false)
+          .getString('common.not_provided');
+    }
     final mostCommon =
         _yearStats.entries.reduce((a, b) => a.value > b.value ? a : b);
     return '${mostCommon.key} (${mostCommon.value})';

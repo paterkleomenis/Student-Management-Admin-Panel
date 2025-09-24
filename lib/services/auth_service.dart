@@ -77,7 +77,7 @@ class AuthService {
 
     // Verify admin role in both userMetadata and appMetadata
     final userRole = user.userMetadata?['role'] as String?;
-    final appRole = user.appMetadata?['role'] as String?;
+    final appRole = user.appMetadata['role'] as String?;
 
     // Check for admin role in metadata
     final isUserAdmin = userRole?.toLowerCase().trim() == 'admin';
@@ -109,7 +109,7 @@ class AuthService {
         'email': user.email,
         'name': user.userMetadata?['name'] ?? 'Admin User',
         'role':
-            user.userMetadata?['role'] ?? user.appMetadata?['role'] ?? 'user',
+            user.userMetadata?['role'] ?? user.appMetadata['role'] ?? 'user',
         'last_sign_in': user.lastSignInAt,
         'email_confirmed': user.emailConfirmedAt != null,
       };
@@ -168,7 +168,9 @@ class AuthService {
       final prefs = await SharedPreferences.getInstance();
       if (_lastActivity != null) {
         await prefs.setString(
-            _lastActivityKey, _lastActivity!.toIso8601String());
+          _lastActivityKey,
+          _lastActivity!.toIso8601String(),
+        );
       }
     } catch (e) {
       // Ignore save errors
