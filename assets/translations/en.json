@@ -109,7 +109,11 @@
     "no_students": "No students found",
     "view_details": "View Details",
     "data_exported": "Data exported successfully!",
-    "export_failed": "Export failed"
+    "export_failed": "Export failed",
+    "view_all": "View All"
+  },
+  "dashboard_errors": {
+    "failed_to_load": "Failed to load dashboard data: {error}"
   },
   "forms": {
     "required_field": "This field is required",
@@ -224,7 +228,9 @@
     "configuration_error": "Configuration Error",
     "error_loading_data": "Error loading data",
     "page_not_found": "Page Not Found",
-    "unexpected_error": "An unexpected error occurred"
+    "unexpected_error": "An unexpected error occurred",
+    "unknown_error": "Unknown error",
+    "failed_to_get_receipt_url": "Failed to get receipt URL"
   },
   "students": {
     "title": "Students",

@@ -109,7 +109,11 @@
     "no_students": "Δεν βρέθηκαν φοιτητές",
     "view_details": "Προβολή Λεπτομερειών",
     "data_exported": "Τα δεδομένα εξήχθησαν επιτυχώς!",
-    "export_failed": "Η εξαγωγή απέτυχε"
+    "export_failed": "Η εξαγωγή απέτυχε",
+    "view_all": "Προβολή Όλων"
+  },
+  "dashboard_errors": {
+    "failed_to_load": "Αποτυχία φόρτωσης δεδομένων πίνακα ελέγχου: {error}"
   },
   "forms": {
     "required_field": "Αυτό το πεδίο είναι υποχρεωτικό",
@@ -223,8 +227,10 @@
   "errors": {
     "configuration_error": "Σφάλμα Διαμόρφωσης",
     "error_loading_data": "Σφάλμα φόρτωσης δεδομένων",
-    "page_not_found": "Η Σελίδα Δεν Βρέθηκε",
-    "unexpected_error": "Προέκυψε ένα απροσδόκητο σφάλμα"
+    "page_not_found": "Η σελίδα δεν βρέθηκε",
+    "unexpected_error": "Παρουσιάστηκε απροσδόκητο σφάλμα",
+    "unknown_error": "Άγνωστο σφάλμα",
+    "failed_to_get_receipt_url": "Αποτυχία λήψης URL απόδειξης"
   },
   "students": {
     "title": "Φοιτητές",

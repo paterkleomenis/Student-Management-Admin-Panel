@@ -1,4 +1,3 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' show ChangeNotifier;
 import '../models/student.dart';
 import '../models/student_receipt.dart';
@@ -117,7 +116,7 @@ class ReceiptProvider with ChangeNotifier {
   // Upload receipt
   Future<bool> uploadReceipt({
     required String studentId,
-    required PlatformFile file,
+    required dynamic file,
     required int concernsMonth,
     required int concernsYear,
   }) async {
@@ -131,7 +130,7 @@ class ReceiptProvider with ChangeNotifier {
       );
 
       if (exists) {
-        _error = 'Receipt already exists for this period';
+        _error = 'receipt_exists';
         _setUploading(false);
         return false;
       }

@@ -58,7 +58,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to load dashboard data: $e'),
+            content: Consumer<LanguageService>(
+              builder: (context, langService, child) => Text(
+                langService.getString('dashboard_errors.failed_to_load',
+                    params: {'error': e.toString()}),
+              ),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -197,11 +202,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                 // Main Content
                 if (_isLoading)
-                  const SizedBox(
+                  SizedBox(
                     height: 300,
                     child: Center(
-                      child: LoadingWidget(
-                        message: 'Loading dashboard...',
+                      child: Consumer<LanguageService>(
+                        builder: (context, langService, child) => LoadingWidget(
+                          message: langService.getString('dashboard.loading'),
+                        ),
                       ),
                     ),
                   )
@@ -229,20 +236,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Admin Dashboard',
-                  style: GoogleFonts.poppins(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[800],
+                Consumer<LanguageService>(
+                  builder: (context, langService, child) => Text(
+                    langService.getString('dashboard.title'),
+                    style: GoogleFonts.poppins(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[800],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Overview of dormitory applications and documents',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: Colors.grey[600],
+                Consumer<LanguageService>(
+                  builder: (context, langService, child) => Text(
+                    langService.getString('dashboard.subtitle'),
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
                   ),
                 ),
               ],
@@ -286,11 +297,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Row(
       children: [
         Expanded(
-          child: _buildStatCard(
-            'Total Registrations',
-            totalStudents.toString(),
-            Icons.people,
-            Colors.blue,
+          child: Consumer<LanguageService>(
+            builder: (context, langService, child) => _buildStatCard(
+              langService.getString('dashboard.total_registrations'),
+              totalStudents.toString(),
+              Icons.people,
+              Colors.blue,
+            ),
           ),
         ),
       ],
@@ -346,27 +359,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Recent Applications',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                  Consumer<LanguageService>(
+                    builder: (context, langService, child) => Text(
+                      langService.getString('dashboard.recent_applications'),
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      // Navigate to students page
-                    },
-                    child: const Text('View All'),
+                  Consumer<LanguageService>(
+                    builder: (context, langService, child) => TextButton(
+                      onPressed: () {
+                        // Navigate to students page
+                      },
+                      child: Text(langService.getString('dashboard.view_all')),
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
               if (_recentStudents.isEmpty)
-                const Center(
+                Center(
                   child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Text('No recent applications'),
+                    padding: const EdgeInsets.all(20),
+                    child: Consumer<LanguageService>(
+                      builder: (context, langService, child) => Text(
+                        langService
+                            .getString('dashboard.no_recent_applications'),
+                      ),
+                    ),
                   ),
                 )
               else
@@ -407,12 +429,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Text(
-                                  'Registered',
-                                  style: TextStyle(
-                                    color: Colors.green,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
+                                child: Consumer<LanguageService>(
+                                  builder: (context, langService, child) =>
+                                      Text(
+                                    langService.getString(
+                                        'dashboard.registered_status'),
+                                    style: const TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
                               ),

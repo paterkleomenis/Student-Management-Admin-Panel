@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 
 import 'config/app_config.dart';
 import 'db_client.dart';
-import 'providers/receipt_provider.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/error_screen.dart';
 import 'screens/login_screen.dart';
@@ -17,6 +16,7 @@ import 'screens/settings_screen.dart';
 import 'screens/student_detail_screen.dart';
 import 'screens/student_form_screen.dart';
 import 'screens/students_screen.dart';
+import 'providers/receipt_provider.dart';
 import 'services/auth_service.dart';
 import 'services/language_service.dart';
 

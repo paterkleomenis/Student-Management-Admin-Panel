@@ -101,9 +101,9 @@ class ReceiptService {
       final filePath = 'receipts/$studentId/$fileName';
 
       // Upload file to storage
-      Uint8List? fileBytes;
+      Uint8List fileBytes;
       if (file.bytes != null) {
-        fileBytes = file.bytes;
+        fileBytes = file.bytes!;
       } else if (file.path != null) {
         fileBytes = await File(file.path!).readAsBytes();
       } else {
@@ -112,7 +112,7 @@ class ReceiptService {
 
       await _client.storage
           .from('student-receipts')
-          .uploadBinary(filePath, fileBytes!);
+          .uploadBinary(filePath, fileBytes);
 
       // Create receipt record in database
       final receiptData = {

@@ -303,15 +303,6 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/students/add'),
-        icon: const Icon(Icons.add),
-        label: Consumer<LanguageService>(
-          builder: (context, langService, child) =>
-              Text(langService.getString('buttons.add_student')),
-        ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-      ),
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(

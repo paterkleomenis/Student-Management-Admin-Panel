@@ -32,6 +32,11 @@ class _MainLayoutState extends State<MainLayout> {
           route: '/students',
         ),
         NavigationItem(
+          icon: Icons.receipt,
+          label: langService.getString('navigation.receipts'),
+          route: '/receipts',
+        ),
+        NavigationItem(
           icon: Icons.analytics,
           label: langService.reports,
           route: '/reports',
@@ -90,29 +95,194 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     final currentLocation = GoRouterState.of(context).fullPath ?? '/dashboard';
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 768;
 
     return Consumer<LanguageService>(
       builder: (context, langService, child) => Scaffold(
         key: _scaffoldKey,
         backgroundColor: Colors.grey[50],
-        body: Row(
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              width: _isCollapsed ? 70 : DesktopConstants.sidebarWidth,
-              child: _buildSidebar(currentLocation, langService),
-            ),
-            Expanded(
-              child: Column(
+        drawer:
+            isMobile ? _buildMobileDrawer(currentLocation, langService) : null,
+        appBar: isMobile ? _buildMobileTopBar(langService) : null,
+        body: isMobile
+            ? widget.child
+            : Row(
                 children: [
-                  _buildTopBar(langService),
-                  Expanded(child: widget.child),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    width: _isCollapsed ? 70 : DesktopConstants.sidebarWidth,
+                    child: _buildSidebar(currentLocation, langService),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        _buildTopBar(langService),
+                        Expanded(child: widget.child),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ],
+      ),
+    );
+  }
+
+  AppBar _buildMobileTopBar(LanguageService langService) {
+    return AppBar(
+      title: Text(
+        langService.getString('app.admin_panel'),
+        style: GoogleFonts.poppins(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
         ),
       ),
+      backgroundColor: Colors.blue[600],
+      foregroundColor: Colors.white,
+      elevation: 2,
+      actions: [
+        IconButton(
+          onPressed: _signOut,
+          icon: const Icon(Icons.logout),
+          tooltip: langService.getString('auth.sign_out'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileDrawer(
+      String currentLocation, LanguageService langService) {
+    final navigationItems = _getNavigationItems(langService);
+
+    return Drawer(
+      child: Column(
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue[600],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.admin_panel_settings,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  langService.getString('app.admin_panel'),
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: navigationItems.map((item) {
+                final isSelected = currentLocation == item.route;
+                return _buildMobileNavItem(item, isSelected, langService);
+              }).toList(),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: Colors.grey[200]!)),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.blue[600],
+                      radius: 20,
+                      child: const Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            langService.getString('auth.administrator'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            langService.getString('auth.admin_user'),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _signOut,
+                    icon: const Icon(Icons.logout, size: 18),
+                    label: Text(langService.getString('auth.sign_out')),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileNavItem(
+      NavigationItem item, bool isSelected, LanguageService langService) {
+    return ListTile(
+      leading: Icon(
+        item.icon,
+        color: isSelected ? Colors.blue[600] : Colors.grey[600],
+        size: 24,
+      ),
+      title: Text(
+        item.label,
+        style: TextStyle(
+          color: isSelected ? Colors.blue[600] : Colors.grey[800],
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          fontSize: 16,
+        ),
+      ),
+      selected: isSelected,
+      selectedTileColor: Colors.blue.withValues(alpha: 0.1),
+      onTap: () {
+        Navigator.of(context).pop(); // Close drawer
+        context.go(item.route);
+      },
     );
   }
 

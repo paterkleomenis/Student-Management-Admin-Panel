@@ -295,17 +295,19 @@ class _StudentsDataTableState extends State<StudentsDataTable>
 
   Widget _buildDesktopLayout() {
     if (_sortedStudents.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.people_outline, size: 48, color: Colors.grey),
-              SizedBox(height: 16),
-              Text(
-                'No students found',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+              const Icon(Icons.people_outline, size: 48, color: Colors.grey),
+              const SizedBox(height: 16),
+              Consumer<LanguageService>(
+                builder: (context, langService, child) => Text(
+                  langService.getString('students.no_students'),
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
               ),
             ],
           ),
@@ -449,17 +451,19 @@ class _StudentsDataTableState extends State<StudentsDataTable>
 
   Widget _buildMobileLayout() {
     if (_sortedStudents.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.people_outline, size: 48, color: Colors.grey),
-              SizedBox(height: 16),
-              Text(
-                'No students found',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+              const Icon(Icons.people_outline, size: 48, color: Colors.grey),
+              const SizedBox(height: 16),
+              Consumer<LanguageService>(
+                builder: (context, langService, child) => Text(
+                  langService.getString('students.no_students'),
+                  style: const TextStyle(fontSize: 16, color: Colors.grey),
+                ),
               ),
             ],
           ),
@@ -591,15 +595,30 @@ class StudentMobileCard extends StatelessWidget {
                   _buildDetailRow("Mother's Name", student.motherName ?? ''),
                   Consumer<LanguageService>(
                     builder: (context, langService, child) => _buildDetailRow(
-                      'Birth Date',
+                      langService.getString('students.fields.birth_date_short'),
                       student.birthDate != null
                           ? _dateFormat.format(student.birthDate!)
                           : langService.getString('common.not_provided'),
                     ),
                   ),
-                  _buildDetailRow('University', student.university ?? ''),
-                  _buildDetailRow('Department', student.department ?? ''),
-                  _buildDetailRow('Year of Study', student.yearOfStudy ?? ''),
+                  Consumer<LanguageService>(
+                    builder: (context, langService, child) => _buildDetailRow(
+                      langService.getString('students.fields.university'),
+                      student.university ?? '',
+                    ),
+                  ),
+                  Consumer<LanguageService>(
+                    builder: (context, langService, child) => _buildDetailRow(
+                      langService.getString('students.fields.department'),
+                      student.department ?? '',
+                    ),
+                  ),
+                  Consumer<LanguageService>(
+                    builder: (context, langService, child) => _buildDetailRow(
+                      langService.getString('students.fields.year_of_study'),
+                      student.yearOfStudy ?? '',
+                    ),
+                  ),
                   Consumer<LanguageService>(
                     builder: (context, langService, child) => _buildDetailRow(
                       'Created',
